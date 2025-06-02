@@ -7,60 +7,108 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [username, setUsername] = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [graduationYear, setGraduationYear] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+
+  const currentYear = new Date().getFullYear()
+  const graduationYears = Array.from({ length: 11 }, (_, i) => currentYear + i)
+
+  const validatePurdueEmail = (email: string) => {
+    return email.endsWith('@purdue.edu')
+  }
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    console.log('Attempting signup with:', { email, username })
-
-    // First, create the auth user
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-
-    console.log('Auth result:', { authData, authError })
-
-    if (authError) {
-      console.error('Auth error:', authError)
-      setError(authError.message)
+    if (!validatePurdueEmail(email)) {
+      setError('Please use a valid @purdue.edu email address')
       setLoading(false)
       return
     }
 
-    // Then create the user profile
-    if (authData.user) {
-      console.log('Creating user profile for:', authData.user.id)
+    try {
+      // First, create the auth user
+      const { data: { user: authUser }, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: displayName,
+          }
+        }
+      })
+
+      if (authError) throw authError
+
+      if (!authUser?.id) {
+        throw new Error('Failed to create user account')
+      }
+
+      // Then create the user profile
+      const username = displayName.toLowerCase().replace(/[^a-z0-9]/g, '_')
+      console.log('Creating user profile with:', {
+        id: authUser.id,
+        username,
+        displayName,
+        email
+      })
+
       const { error: profileError } = await supabase
         .from('users')
-        .insert([
-          {
-            id: authData.user.id,
-            username: username,
-          },
-        ])
-
-      console.log('Profile creation result:', { profileError })
+        .insert({
+          id: authUser.id,
+          username: username,
+          display_name: displayName,
+          purdue_email: email,
+          graduation_year: graduationYear ? parseInt(graduationYear) : null,
+          is_verified: false
+        })
 
       if (profileError) {
-        console.error('Profile error:', profileError)
-        setError(profileError.message)
-      } else {
-        router.push('/profile')
+        console.error('Profile creation error:', {
+          message: profileError.message,
+          details: profileError.details,
+          hint: profileError.hint,
+          code: profileError.code
+        })
+        throw new Error('Failed to create user profile. Please try again or contact support.')
       }
+
+      // Verify the user was created
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .single()
+
+      if (verifyError) {
+        console.error('Verification error:', {
+          message: verifyError.message,
+          details: verifyError.details,
+          hint: verifyError.hint,
+          code: verifyError.code
+        })
+      } else {
+        console.log('User profile created and verified:', verifyData)
+      }
+
+      router.push('/verify-email')
+    } catch (error) {
+      console.error('Signup error:', error)
+      setError(error instanceof Error ? error.message : 'Failed to create account')
+    } finally {
+      setLoading(false)
     }
-    
-    setLoading(false)
   }
 
   return (
@@ -74,9 +122,9 @@ export default function SignupPage() {
             <div>
               <Input
                 type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Display Name"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
                 required
                 minLength={3}
               />
@@ -85,13 +133,30 @@ export default function SignupPage() {
             <div>
               <Input
                 type="email"
-                placeholder="Email"
+                placeholder="Purdue Email (@purdue.edu)"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                pattern="[^@]+@purdue\.edu"
+                title="Please use your Purdue email address"
               />
             </div>
             
+            <div>
+              <Select value={graduationYear} onValueChange={setGraduationYear}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Expected Graduation Year (Optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {graduationYears.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <Input
                 type="password"

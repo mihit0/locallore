@@ -10,14 +10,14 @@ import { useState } from 'react'
 export default function MapPage() {
   const { user } = useAuth()
   const router = useRouter()
-  const [isCreatingPin, setIsCreatingPin] = useState(false)
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false)
 
-  const handleCreatePin = () => {
+  const handleCreateEvent = () => {
     if (!user) {
       router.push('/auth/login')
       return
     }
-    setIsCreatingPin(true)
+    setIsCreatingEvent(!isCreatingEvent)
   }
 
   return (
@@ -26,19 +26,19 @@ export default function MapPage() {
         <Link href="/">
           <Button variant="ghost">← Back to Home</Button>
         </Link>
-        <h1 className="text-xl font-semibold">LocalLore Map</h1>
+        <h1 className="text-xl font-semibold">Purdue Events Map</h1>
         <Button 
-          onClick={handleCreatePin}
-          variant={isCreatingPin ? "secondary" : "default"}
+          onClick={handleCreateEvent}
+          variant={isCreatingEvent ? "secondary" : "default"}
         >
-          {isCreatingPin ? "Cancel" : user ? "Create Pin" : "Sign in to Create Pin"}
+          {isCreatingEvent ? "Cancel" : user ? "Create Event" : "Sign in to Create Event"}
         </Button>
       </div>
       
       <div className="flex-1 relative w-full h-[calc(100vh-4rem)]">
         <MapComponent 
-          isCreatingPin={isCreatingPin}
-          onCancelPinCreation={() => setIsCreatingPin(false)}
+          isCreatingEvent={isCreatingEvent}
+          onCancelEventCreation={() => setIsCreatingEvent(false)}
         />
       </div>
     </div>
