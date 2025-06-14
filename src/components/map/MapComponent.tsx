@@ -198,6 +198,7 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
     setShowCreateModal(true)
   }
 
+  // Initialize map once and handle click events separately
   useEffect(() => {
     if (!mapContainer.current) return
     if (map.current) return
@@ -205,7 +206,7 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
     try {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/dark-v11',
         center: [-86.9189, 40.4284], // Purdue University coordinates
         zoom: 15
       })
@@ -224,21 +225,29 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
       console.error('Error initializing map:', error)
     }
 
-    // Add click handler when in creation mode
-    if (isCreatingEvent && map.current) {
-      map.current.getCanvas().style.cursor = 'crosshair'
-      map.current.on('click', handleMapClick)
-    } else {
-      if (map.current) {
-        map.current.getCanvas().style.cursor = ''
-        map.current.off('click', handleMapClick)
-      }
-    }
-
     return () => {
       if (map.current) {
         map.current.remove()
         map.current = null
+      }
+    }
+  }, [])
+
+  // Handle event creation mode changes
+  useEffect(() => {
+    if (!map.current) return
+
+    if (isCreatingEvent) {
+      map.current.getCanvas().style.cursor = 'crosshair'
+      map.current.on('click', handleMapClick)
+    } else {
+      map.current.getCanvas().style.cursor = ''
+      map.current.off('click', handleMapClick)
+    }
+
+    return () => {
+      if (map.current) {
+        map.current.off('click', handleMapClick)
       }
     }
   }, [isCreatingEvent])
