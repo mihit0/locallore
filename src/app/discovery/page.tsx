@@ -58,11 +58,11 @@ export default function DiscoveryPage() {
   }, [inView, loading, hasMore, activeTab]);
 
   return (
-    <div className="min-h-screen bg-[#000000] bg-[radial-gradient(#B1810B_1px,transparent_1px)] [background-size:16px_16px]">
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">Discover Events</h1>
-          <p className="text-xl text-[#B1810B] font-medium bg-white/5 backdrop-blur-sm py-2 px-4 rounded-full inline-block">
+    <div className="min-h-screen bg-black">
+      <div className="container mx-auto px-4 py-6">
+        <div className="text-center mb-6 space-y-2">
+          <h1 className="text-4xl font-bold text-white">Discover Events</h1>
+          <p className="text-sm text-gray-400">
             Find what's happening on campus right now
           </p>
         </div>
@@ -72,34 +72,34 @@ export default function DiscoveryPage() {
           onValueChange={setActiveTab} 
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-3 gap-4 bg-transparent p-0">
+          <TabsList className="w-full grid grid-cols-3 gap-3 bg-transparent p-0 mb-6">
             {user && (
               <TabsTrigger 
                 value="for-you" 
-                className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white border-2 border-[#B1810B] text-[#B1810B] rounded-full flex items-center gap-2 hover:bg-[#B1810B]/10"
+                className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white text-gray-300 bg-transparent hover:bg-gray-900 rounded flex items-center gap-2 font-medium py-2 px-4 transition-all duration-200 border-0"
               >
                 <Compass className="w-4 h-4" />
-                For You
+                <span className="text-sm">For You</span>
               </TabsTrigger>
             )}
             <TabsTrigger 
               value="popular" 
-              className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white border-2 border-[#B1810B] text-[#B1810B] rounded-full flex items-center gap-2 hover:bg-[#B1810B]/10"
+              className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white text-gray-300 bg-transparent hover:bg-gray-900 rounded flex items-center gap-2 font-medium py-2 px-4 transition-all duration-200 border-0"
             >
               <TrendingUp className="w-4 h-4" />
-              Popular
+              <span className="text-sm">Popular</span>
             </TabsTrigger>
             <TabsTrigger 
               value="latest" 
-              className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white border-2 border-[#B1810B] text-[#B1810B] rounded-full flex items-center gap-2 hover:bg-[#B1810B]/10"
+              className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white text-gray-300 bg-transparent hover:bg-gray-900 rounded flex items-center gap-2 font-medium py-2 px-4 transition-all duration-200 border-0"
             >
               <Clock className="w-4 h-4" />
-              Latest
+              <span className="text-sm">Latest</span>
             </TabsTrigger>
           </TabsList>
 
           {user && (
-            <TabsContent value="for-you" className="mt-6 space-y-4">
+            <TabsContent value="for-you" className="mt-4 space-y-4">
               {loading && page === 1 ? (
                 <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                   {Array(3).fill(0).map((_, i) => <EventCardSkeleton key={i} />)}
@@ -114,14 +114,14 @@ export default function DiscoveryPage() {
                   {hasMore && <div ref={ref} className="h-10" />}
                 </>
               ) : (
-                <div className="text-center py-8 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-                  <p className="text-gray-400">No events found. Check back later!</p>
+                <div className="text-center py-8">
+                  <p className="text-gray-400 text-sm">No events found. Check back later!</p>
                 </div>
               )}
             </TabsContent>
           )}
 
-          <TabsContent value="popular" className="mt-6 space-y-4">
+          <TabsContent value="popular" className="mt-4 space-y-4">
             {loading && page === 1 ? (
               <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {Array(3).fill(0).map((_, i) => <EventCardSkeleton key={i} />)}
@@ -136,13 +136,13 @@ export default function DiscoveryPage() {
                 {hasMore && <div ref={ref} className="h-10" />}
               </>
             ) : (
-              <div className="text-center py-8 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-                <p className="text-gray-400">No events found. Check back later!</p>
+              <div className="text-center py-8">
+                <p className="text-gray-400 text-sm">No events found. Check back later!</p>
               </div>
             )}
           </TabsContent>
 
-          <TabsContent value="latest" className="mt-6 space-y-4">
+          <TabsContent value="latest" className="mt-4 space-y-4">
             {loading && page === 1 ? (
               <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {Array(3).fill(0).map((_, i) => <EventCardSkeleton key={i} />)}
@@ -157,8 +157,8 @@ export default function DiscoveryPage() {
                 {hasMore && <div ref={ref} className="h-10" />}
               </>
             ) : (
-              <div className="text-center py-8 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-                <p className="text-gray-400">No events found. Check back later!</p>
+              <div className="text-center py-8">
+                <p className="text-gray-400 text-sm">No events found. Check back later!</p>
               </div>
             )}
           </TabsContent>
@@ -169,14 +169,14 @@ export default function DiscoveryPage() {
 }
 
 const EventCardSkeleton = () => (
-  <div className="w-full p-4 border border-white/10 rounded-lg shadow-sm space-y-3 bg-white/5 backdrop-blur-sm">
-    <Skeleton className="h-6 w-3/4 bg-white/10" />
-    <Skeleton className="h-4 w-1/4 bg-white/10" />
-    <Skeleton className="h-4 w-1/2 bg-white/10" />
-    <Skeleton className="h-16 w-full bg-white/10" />
+  <div className="w-full p-4 rounded space-y-3">
+    <Skeleton className="h-5 w-3/4 bg-gray-800" />
+    <Skeleton className="h-3 w-1/4 bg-gray-800" />
+    <Skeleton className="h-3 w-1/2 bg-gray-800" />
+    <Skeleton className="h-12 w-full bg-gray-800" />
     <div className="flex justify-between items-center">
-      <Skeleton className="h-4 w-1/4 bg-white/10" />
-      <Skeleton className="h-8 w-24 bg-white/10" />
+      <Skeleton className="h-3 w-1/4 bg-gray-800" />
+      <Skeleton className="h-6 w-20 bg-gray-800" />
     </div>
   </div>
 ); 

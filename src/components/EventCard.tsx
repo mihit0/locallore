@@ -10,12 +10,12 @@ import { EventDetailsSheet } from '@/components/map/EventDetailsSheet';
 import { useRouter } from 'next/navigation';
 
 const CATEGORY_COLORS = {
-  Food: 'bg-amber-100 text-amber-800 border-amber-200',
-  Study: 'bg-blue-100 text-blue-800 border-blue-200',
-  Club: 'bg-purple-100 text-purple-800 border-purple-200',
-  Social: 'bg-green-100 text-green-800 border-green-200',
-  Academic: 'bg-red-100 text-red-800 border-red-200',
-  Other: 'bg-gray-100 text-gray-800 border-gray-200'
+  Food: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  Study: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  Club: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+  Social: 'bg-green-500/20 text-green-400 border-green-500/30',
+  Academic: 'bg-red-500/20 text-red-400 border-red-500/30',
+  Other: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
 } as const;
 
 interface EventCardProps {
@@ -86,40 +86,40 @@ export function EventCard({ event, showMapButton = false }: EventCardProps) {
     <>
       <div 
         ref={cardRef}
-        className="w-full p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-white to-gray-50"
+        className="w-full p-4 rounded hover:bg-gray-900/30 transition-all duration-300 hover:scale-[1.02] transform"
       >
         {event.image_url && (
-          <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+          <div className="relative w-full h-40 mb-3 rounded overflow-hidden">
             <img 
               src={event.image_url} 
               alt={event.title}
-              className="absolute inset-0 w-full h-full object-contain bg-gray-100"
+              className="absolute inset-0 w-full h-full object-contain bg-black/50"
             />
           </div>
         )}
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold line-clamp-2 text-[#000000]">{event.title}</h3>
-          <Badge variant="outline" className={CATEGORY_COLORS[event.category]}>
+          <h3 className="text-lg font-semibold line-clamp-2 text-white">{event.title}</h3>
+          <Badge variant="outline" className={`${CATEGORY_COLORS[event.category]} backdrop-blur-sm text-xs border-0`}>
             {event.category}
           </Badge>
         </div>
 
-        <div className="text-sm text-gray-600 mb-2">
+        <div className="text-xs text-gray-400 mb-3 space-y-1">
           <div>{getTimeDisplay()}</div>
           <button 
             onClick={handleViewOnMap}
-            className="text-[#B1810B] hover:text-[#8B6B09] flex items-center gap-1"
+            className="text-[#B1810B] hover:text-[#D4940D] flex items-center gap-1 transition-colors duration-200"
           >
-            <MapPin className="w-4 h-4" />
-            View on Map
+            <MapPin className="w-3 h-3" />
+            <span className="text-xs">View on Map</span>
           </button>
         </div>
 
-        <p className="text-gray-700 line-clamp-2 mb-4">{event.description}</p>
+        <p className="text-gray-300 line-clamp-2 mb-4 text-xs">{event.description}</p>
 
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Eye className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <Eye className="w-3 h-3" />
             <span>{event.view_count}</span>
             {event.creator && (
               <span>• by {event.creator.display_name} '{event.creator.graduation_year?.toString().slice(-2)}</span>
@@ -129,19 +129,21 @@ export function EventCard({ event, showMapButton = false }: EventCardProps) {
             {showMapButton && (
               <Button 
                 onClick={handleViewOnMap}
-                variant="outline"
-                className="bg-white hover:bg-gray-50"
+                variant="ghost"
+                size="sm"
+                className="text-gray-300 hover:bg-gray-800 transition-all duration-200 p-2"
               >
-                <MapPin className="w-4 h-4 mr-1" />
-                Map
+                <MapPin className="w-3 h-3 mr-1" />
+                <span className="text-xs">Map</span>
               </Button>
             )}
             <Button 
               onClick={handleClick} 
-              variant="default"
-              className="bg-[#B1810B] hover:bg-[#8B6B09] text-white"
+              variant="ghost"
+              size="sm"
+              className="bg-[#B1810B] text-white hover:bg-[#8B6B09] transition-colors duration-200 p-2"
             >
-              View Details
+              <span className="text-xs">Details</span>
             </Button>
           </div>
         </div>

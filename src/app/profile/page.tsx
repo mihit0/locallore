@@ -239,16 +239,16 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-[#000000] to-[#B1810B] p-4 flex items-center justify-center">
-        <div className="text-lg text-white">Loading your profile...</div>
+      <div className="min-h-screen bg-black p-4 flex items-center justify-center">
+        <div className="text-lg text-white font-medium">Loading your profile...</div>
       </div>
     )
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-[#000000] to-[#B1810B] p-4 flex items-center justify-center">
-        <div className="text-lg text-white">Loading profile data...</div>
+      <div className="min-h-screen bg-black p-4 flex items-center justify-center">
+        <div className="text-lg text-white font-medium">Loading profile data...</div>
       </div>
     )
   }
@@ -258,75 +258,92 @@ export default function ProfilePage() {
   const totalViews = events.reduce((sum, event) => sum + event.view_count, 0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-[#000000] to-[#B1810B]">
-      <div className="max-w-6xl mx-auto p-4 pt-8 space-y-8">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-white">Your Profile</h1>
-          <div className="flex gap-4">
-            <Button asChild variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-6xl mx-auto p-4 pt-6 space-y-8">
+        <div className="flex justify-between items-center pb-4">
+          <h1 className="text-4xl font-bold text-white">Your Profile</h1>
+          <div className="flex gap-3">
+            <Button 
+              asChild 
+              variant="ghost"
+              size="default"
+              className="text-gray-300 hover:bg-gray-900 hover:text-white transition-all duration-200"
+            >
               <Link href="/" className="flex items-center gap-2">
                 <Home className="w-4 h-4" />
-                Home
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
-              <Link href="/map" className="flex items-center gap-2">
-                <Map className="w-4 h-4" />
-                Map
+                <span className="text-sm">Home</span>
               </Link>
             </Button>
             <Button 
-              variant="destructive" 
+              asChild 
+              variant="ghost"
+              size="default"
+              className="text-gray-300 hover:bg-gray-900 hover:text-white transition-all duration-200"
+            >
+              <Link href="/map" className="flex items-center gap-2">
+                <Map className="w-4 h-4" />
+                <span className="text-sm">Map</span>
+              </Link>
+            </Button>
+            <Button 
+              variant="ghost"
+              size="default"
               onClick={handleLogout}
-              className="flex items-center gap-2"
+              className="text-gray-300 hover:bg-gray-900 hover:text-white transition-all duration-200 flex items-center gap-2"
             >
               <LogOut className="w-4 h-4" />
-              Sign Out
+              <span className="text-sm">Sign Out</span>
             </Button>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="col-span-2 bg-white/10 border-white/20 text-white">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-2xl">Profile Information</CardTitle>
+        <div className="w-full h-px bg-white/20"></div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="col-span-2 space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold">Profile Information</h2>
               <div className="flex gap-2">
                 <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
+                    <Button 
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-300 hover:bg-gray-900 hover:text-white transition-all duration-200"
+                    >
                       <Edit className="w-4 h-4 mr-2" />
-                      Edit Profile
+                      <span className="text-sm">Edit</span>
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900 text-white border-white/20">
+                  <DialogContent className="bg-black/90 backdrop-blur-sm text-white border-gray-700">
                     <DialogHeader>
-                      <DialogTitle>Edit Profile</DialogTitle>
-                      <DialogDescription className="text-gray-400">
+                      <DialogTitle className="text-xl font-semibold">Edit Profile</DialogTitle>
+                      <DialogDescription className="text-gray-400 text-sm">
                         Make changes to your profile information.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="display_name">Display Name</Label>
+                        <Label htmlFor="display_name" className="text-white text-sm">Display Name</Label>
                         <Input
                           id="display_name"
                           placeholder={profile?.display_name}
                           value={editForm.display_name}
                           onChange={(e) => setEditForm(prev => ({ ...prev, display_name: e.target.value }))}
-                          className="bg-white/10 border-white/20"
+                          className="bg-gray-900 border-gray-700 text-white placeholder-gray-500 text-sm"
                           maxLength={50}
                         />
-                        <p className="text-xs text-gray-400">2-50 characters</p>
+                        <p className="text-xs text-gray-500">2-50 characters</p>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="graduation_year">Graduation Year</Label>
+                        <Label htmlFor="graduation_year" className="text-white text-sm">Graduation Year</Label>
                         <Select
                           value={editForm.graduation_year}
                           onValueChange={(value) => setEditForm(prev => ({ ...prev, graduation_year: value }))}>
-                          <SelectTrigger className="bg-white/10 border-white/20">
+                          <SelectTrigger className="bg-gray-900 border-gray-700 text-white text-sm">
                             <SelectValue placeholder="Select graduation year" />
                           </SelectTrigger>
-                          <SelectContent className="bg-gray-900 text-white border-white/20">
+                          <SelectContent className="bg-black/90 backdrop-blur-sm text-white border-gray-700">
                             {graduationYears.map((year) => (
                               <SelectItem key={year} value={year.toString()}>
                                 {year}
@@ -338,14 +355,17 @@ export default function ProfilePage() {
                     </div>
                     <DialogFooter>
                       <Button 
-                        variant="outline" 
+                        variant="ghost"
                         onClick={() => setIsEditingProfile(false)}
-                        className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+                        className="text-gray-300 hover:bg-gray-900"
                       >
-                        Cancel
+                        <span className="text-sm">Cancel</span>
                       </Button>
-                      <Button onClick={handleEditProfile}>
-                        Save Changes
+                      <Button 
+                        onClick={handleEditProfile}
+                        className="bg-[#B1810B] text-white hover:bg-[#8B6B09] transition-colors duration-200"
+                      >
+                        <span className="text-sm">Save Changes</span>
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -353,46 +373,47 @@ export default function ProfilePage() {
 
                 <Dialog open={isConfirmingDelete} onOpenChange={setIsConfirmingDelete}>
                   <DialogTrigger asChild>
-                    <Button variant="destructive" size="sm">
+                    <Button variant="ghost" size="sm" className="text-red-400 hover:bg-red-900/20">
                       <Trash2 className="w-4 h-4 mr-2" />
-                      Delete Account
+                      <span className="text-sm">Delete</span>
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-gray-900 text-white border-white/20">
+                  <DialogContent className="bg-black/90 backdrop-blur-sm text-white border-gray-700">
                     <DialogHeader>
-                      <DialogTitle>Delete Account</DialogTitle>
-                      <DialogDescription className="text-gray-400">
+                      <DialogTitle className="text-xl font-semibold">Delete Account</DialogTitle>
+                      <DialogDescription className="text-gray-400 text-sm">
                         Are you sure you want to delete your account? This action cannot be undone.
                         All your events and data will be permanently deleted.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                       <Button 
-                        variant="outline" 
+                        variant="ghost"
                         onClick={() => setIsConfirmingDelete(false)}
-                        className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+                        className="text-gray-300 hover:bg-gray-900"
                       >
-                        Cancel
+                        <span className="text-sm">Cancel</span>
                       </Button>
                       <Button variant="destructive" onClick={handleDeleteAccount}>
-                        Delete Account
+                        <span className="text-sm">Delete Account</span>
                       </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            </div>
+            
+            <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-300">Display Name</p>
-                <p className="text-xl">{profile.display_name}</p>
+                <p className="text-xs text-gray-400 mb-1">Display Name</p>
+                <p className="text-base font-medium">{profile.display_name}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-300">Purdue Email</p>
-                <p className="text-xl flex items-center gap-2">
+                <p className="text-xs text-gray-400 mb-1">Purdue Email</p>
+                <p className="text-base font-medium flex items-center gap-2">
                   {profile.purdue_email}
                   {profile.is_verified && (
-                    <span className="text-xs bg-green-500/20 text-green-300 px-3 py-1 rounded-full border border-green-500/30">
+                    <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30">
                       Verified
                     </span>
                   )}
@@ -400,95 +421,87 @@ export default function ProfilePage() {
               </div>
               {profile.graduation_year && (
                 <div>
-                  <p className="text-sm text-gray-300">Expected Graduation</p>
-                  <p className="text-xl">{profile.graduation_year}</p>
+                  <p className="text-xs text-gray-400 mb-1">Expected Graduation</p>
+                  <p className="text-base font-medium">{profile.graduation_year}</p>
                 </div>
               )}
               <div>
-                <p className="text-sm text-gray-300">Member Since</p>
-                <p className="text-xl">{new Date(profile.created_at).toLocaleDateString()}</p>
+                <p className="text-xs text-gray-400 mb-1">Member Since</p>
+                <p className="text-base font-medium">{new Date(profile.created_at).toLocaleDateString()}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="bg-white/10 border-white/20 text-white">
-            <CardHeader>
-              <CardTitle className="text-2xl">Event Statistics</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                <div className="flex items-center gap-2 text-[#B1810B]">
-                  <Calendar className="w-5 h-5" />
-                  <p className="text-sm">Active Events</p>
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold">Statistics</h2>
+            <div className="space-y-4">
+              <div className="p-4 hover:bg-gray-900/50 transition-all duration-200 rounded">
+                <div className="flex items-center gap-2 text-[#B1810B] mb-1">
+                  <Calendar className="w-4 h-4" />
+                  <p className="text-xs font-medium">Active Events</p>
                 </div>
-                <p className="text-3xl font-semibold mt-1">{activeEvents.length}</p>
+                <p className="text-2xl font-bold">{activeEvents.length}</p>
               </div>
-              <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                <div className="flex items-center gap-2 text-[#B1810B]">
-                  <Trophy className="w-5 h-5" />
-                  <p className="text-sm">Total Events</p>
+              <div className="p-4 hover:bg-gray-900/50 transition-all duration-200 rounded">
+                <div className="flex items-center gap-2 text-[#B1810B] mb-1">
+                  <Trophy className="w-4 h-4" />
+                  <p className="text-xs font-medium">Total Events</p>
                 </div>
-                <p className="text-3xl font-semibold mt-1">{events.length}</p>
+                <p className="text-2xl font-bold">{events.length}</p>
               </div>
-              <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                <div className="flex items-center gap-2 text-[#B1810B]">
-                  <Eye className="w-5 h-5" />
-                  <p className="text-sm">Total Views</p>
+              <div className="p-4 hover:bg-gray-900/50 transition-all duration-200 rounded">
+                <div className="flex items-center gap-2 text-[#B1810B] mb-1">
+                  <Eye className="w-4 h-4" />
+                  <p className="text-xs font-medium">Total Views</p>
                 </div>
-                <p className="text-3xl font-semibold mt-1">{totalViews}</p>
+                <p className="text-2xl font-bold">{totalViews}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {activeEvents.length > 0 && (
-          <Card className="bg-white/10 border-white/20">
-            <CardHeader>
-              <CardTitle className="text-2xl text-white">Active Events</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {activeEvents.map(event => (
-                  <div key={event.id} className="relative">
-                    <EventCard event={event} showMapButton />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="absolute top-2 right-2 bg-white/90 hover:bg-white"
-                      onClick={() => handleEditEvent(event)}
-                    >
-                      Edit
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            <div className="w-full h-px bg-white/20"></div>
+            <h2 className="text-2xl font-semibold text-white">Active Events</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {activeEvents.map(event => (
+                <div key={event.id} className="relative">
+                  <EventCard event={event} showMapButton />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-2 right-2 text-gray-300 hover:bg-gray-800 backdrop-blur-sm transition-all duration-200"
+                    onClick={() => handleEditEvent(event)}
+                  >
+                    <span className="text-xs">Edit</span>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {pastEvents.length > 0 && (
-          <Card className="bg-white/10 border-white/20">
-            <CardHeader>
-              <CardTitle className="text-2xl text-white">Past Events</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {pastEvents.map(event => (
-                  <div key={event.id} className="relative">
-                    <EventCard event={event} showMapButton />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="absolute top-2 right-2 bg-white/90 hover:bg-white"
-                      onClick={() => handleEditEvent(event)}
-                    >
-                      Edit
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            <div className="w-full h-px bg-white/20"></div>
+            <h2 className="text-2xl font-semibold text-white">Past Events</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {pastEvents.map(event => (
+                <div key={event.id} className="relative">
+                  <EventCard event={event} showMapButton />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-2 right-2 text-gray-300 hover:bg-gray-800 backdrop-blur-sm transition-all duration-200"
+                    onClick={() => handleEditEvent(event)}
+                  >
+                    <span className="text-xs">Edit</span>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
