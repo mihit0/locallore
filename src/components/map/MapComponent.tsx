@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Event, EventCategory } from '@/types'
 import { CreateEventModal } from './CreateEventModal'
 import { EditEventModal } from './EditEventModal'
+import { formatEasternDateTime } from '@/lib/date'
+import { EventDetailsSheet } from './EventDetailsSheet'
 
 // Initialize Mapbox
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!
@@ -29,14 +31,14 @@ const categoryColors: Record<EventCategory, string> = {
 }
 
 // Category icons (emoji for now, can be replaced with actual icons)
-const categoryIcons: Record<EventCategory, string> = {
+const categoryIcons = {
   Food: '🍕',
   Study: '📚',
   Club: '🎯',
   Social: '🎉',
   Academic: '🎓',
   Other: '⭐'
-}
+} as const
 
 export default function MapComponent({ isCreatingEvent, onCancelEventCreation }: MapComponentProps) {
   const { user } = useAuth()
@@ -46,6 +48,7 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const [showEventDetails, setShowEventDetails] = useState(false)
   const [events, setEvents] = useState<Event[]>([])
 
   // Load active events from database
@@ -108,18 +111,16 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
             </div>
             <p class="text-sm mb-2">${event.description.substring(0, 100)}${event.description.length > 100 ? '...' : ''}</p>
             <div class="text-sm text-gray-600">
-              <p>Starts: ${formatDateTime(event.start_time)}</p>
-              <p>Ends: ${formatDateTime(event.end_time)}</p>
+              <p>Starts: ${formatEasternDateTime(event.start_time)}</p>
+              <p>Ends: ${formatEasternDateTime(event.end_time)}</p>
               <p class="mt-1">Time remaining: ${timeRemaining}</p>
             </div>
-            ${user && user.id === event.user_id ? `
-              <button 
-                class="mt-2 text-sm text-blue-600 hover:underline"
-                onclick="document.dispatchEvent(new CustomEvent('editEvent', { detail: '${event.id}' }))"
-              >
-                Edit Event
-              </button>
-            ` : ''}
+            <button 
+              class="mt-2 text-sm text-blue-600 hover:underline"
+              onclick="document.dispatchEvent(new CustomEvent('viewEventDetails', { detail: '${event.id}' }))"
+            >
+              View Details
+            </button>
           </div>
         `)
 
@@ -141,20 +142,20 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
         .addTo(map.current!)
     })
 
-    // Add event listener for edit button clicks
-    const handleEditEvent = (event: CustomEvent<string>) => {
+    // Add event listener for view details button clicks
+    const handleViewEventDetails = (event: CustomEvent<string>) => {
       const eventId = event.detail
-      const eventToEdit = events.find(e => e.id === eventId)
-      if (eventToEdit) {
-        setSelectedEvent(eventToEdit)
-        setShowEditModal(true)
+      const eventToView = events.find(e => e.id === eventId)
+      if (eventToView) {
+        setSelectedEvent(eventToView)
+        setShowEventDetails(true)
       }
     }
 
-    document.addEventListener('editEvent', handleEditEvent as EventListener)
+    document.addEventListener('viewEventDetails', handleViewEventDetails as EventListener)
 
     return () => {
-      document.removeEventListener('editEvent', handleEditEvent as EventListener)
+      document.removeEventListener('viewEventDetails', handleViewEventDetails as EventListener)
     }
   }, [events, map.current, user])
 
@@ -239,18 +240,6 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
     setEvents(data)
   }
 
-  // Helper function to format date and time
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
-
   // Helper function to calculate time remaining
   const getTimeRemaining = (endTimeString: string) => {
     const now = new Date()
@@ -297,6 +286,15 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
         onClose={handleEditModalClose}
         event={selectedEvent}
         onSuccess={handleEventUpdated}
+      />
+      <EventDetailsSheet
+        isOpen={showEventDetails}
+        onClose={() => setShowEventDetails(false)}
+        event={selectedEvent}
+        onEdit={() => {
+          setShowEventDetails(false)
+          setShowEditModal(true)
+        }}
       />
     </>
   )

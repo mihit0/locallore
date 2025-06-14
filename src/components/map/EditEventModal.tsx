@@ -17,6 +17,7 @@ import { useAuth } from "@/lib/auth"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Event, EventCategory, EditEventModalProps } from "@/types"
+import { localToEastern, easternToLocal, getCurrentEasternTime, getMaxEasternTime } from "@/lib/date"
 
 export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventModalProps) {
   const { user } = useAuth()
@@ -35,8 +36,8 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
     if (event) {
       setTitle(event.title)
       setDescription(event.description)
-      setStartTime(event.start_time.slice(0, 16)) // Format for datetime-local input
-      setEndTime(event.end_time.slice(0, 16))
+      setStartTime(easternToLocal(event.start_time))
+      setEndTime(easternToLocal(event.end_time))
       setCategory(event.category)
       setContactInfo(event.contact_info || "")
       setImageUrl(event.image_url || "")
@@ -53,8 +54,8 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
         .update({
           title: title.trim(),
           description: description.trim(),
-          start_time: startTime,
-          end_time: endTime,
+          start_time: localToEastern(startTime),
+          end_time: localToEastern(endTime),
           category,
           contact_info: contactInfo.trim() || null,
           image_url: imageUrl.trim() || null,
@@ -104,11 +105,10 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
   }
 
   const isValidForm = () => {
-    const now = new Date()
-    const start = new Date(startTime)
-    const end = new Date(endTime)
-    const maxDate = new Date()
-    maxDate.setDate(now.getDate() + 7)
+    const now = new Date(getCurrentEasternTime())
+    const start = new Date(localToEastern(startTime))
+    const end = new Date(localToEastern(endTime))
+    const maxDate = new Date(getMaxEasternTime())
 
     return (
       title.trim().length >= 5 &&
@@ -131,7 +131,7 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
         <DialogHeader>
           <DialogTitle>Edit Event</DialogTitle>
           <DialogDescription>
-            Update your event details.
+            Update your event details. All times must be entered in Eastern Time (ET).
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -162,23 +162,29 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium">Start Time</label>
-              <Input
-                type="datetime-local"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                min={new Date().toISOString().slice(0, 16)}
-                max={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
-              />
+              <label className="text-sm font-medium">Start Time (Enter in ET)</label>
+              <div className="relative">
+                <Input
+                  type="datetime-local"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  min={new Date().toISOString().slice(0, 16)}
+                  max={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500">ET</span>
+              </div>
             </div>
             <div>
-              <label className="text-sm font-medium">End Time</label>
-              <Input
-                type="datetime-local"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                min={startTime || new Date().toISOString().slice(0, 16)}
-              />
+              <label className="text-sm font-medium">End Time (Enter in ET)</label>
+              <div className="relative">
+                <Input
+                  type="datetime-local"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  min={startTime || new Date().toISOString().slice(0, 16)}
+                />
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500">ET</span>
+              </div>
             </div>
           </div>
 

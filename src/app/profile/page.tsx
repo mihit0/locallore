@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Event } from '@/types'
+import { formatEasternDateTime } from '@/lib/date'
 
 interface UserProfile {
   username: string
@@ -233,8 +234,8 @@ export default function ProfilePage() {
                       </span>
                     </div>
                     <div className="mt-2 text-sm text-gray-500">
-                      <p>Starts: {new Date(event.start_time).toLocaleString()}</p>
-                      <p>Ends: {new Date(event.end_time).toLocaleString()}</p>
+                      <p>Starts: {formatEasternDateTime(event.start_time)}</p>
+                      <p>Ends: {formatEasternDateTime(event.end_time)}</p>
                     </div>
                     <div className="mt-2 text-sm text-gray-400">
                       {event.view_count} views
@@ -265,8 +266,8 @@ export default function ProfilePage() {
                       </span>
                     </div>
                     <div className="mt-2 text-sm text-gray-500">
-                      <p>Started: {new Date(event.start_time).toLocaleString()}</p>
-                      <p>Ended: {new Date(event.end_time).toLocaleString()}</p>
+                      <p>Started: {formatEasternDateTime(event.start_time)}</p>
+                      <p>Ended: {formatEasternDateTime(event.end_time)}</p>
                     </div>
                     <div className="mt-2 text-sm text-gray-400">
                       {event.view_count} views
