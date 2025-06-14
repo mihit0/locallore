@@ -7,8 +7,10 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Event } from '@/types'
+import { Event } from '@/types/event'
 import { formatEasternDateTime } from '@/lib/date'
+import { EventCard } from '@/components/EventCard'
+import { LogOut, Home, Map, Trophy, Calendar, Eye } from 'lucide-react'
 
 interface UserProfile {
   username: string
@@ -128,16 +130,16 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-        <div className="text-lg">Loading your profile...</div>
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-[#000000] to-[#B1810B] p-4 flex items-center justify-center">
+        <div className="text-lg text-white">Loading your profile...</div>
       </div>
     )
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-        <div className="text-lg">Loading profile data...</div>
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-[#000000] to-[#B1810B] p-4 flex items-center justify-center">
+        <div className="text-lg text-white">Loading profile data...</div>
       </div>
     )
   }
@@ -147,100 +149,107 @@ export default function ProfilePage() {
   const totalViews = events.reduce((sum, event) => sum + event.view_count, 0)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-[#000000] to-[#B1810B]">
+      <div className="max-w-6xl mx-auto p-4 pt-8 space-y-8">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Your Profile</h1>
+          <h1 className="text-3xl font-bold text-white">Your Profile</h1>
           <div className="flex gap-4">
-            <Button asChild variant="outline">
-              <Link href="/">Home</Link>
+            <Button asChild variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
+              <Link href="/" className="flex items-center gap-2">
+                <Home className="w-4 h-4" />
+                Home
+              </Link>
             </Button>
-            <Button asChild variant="outline">
-              <Link href="/map">View Map</Link>
+            <Button asChild variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20">
+              <Link href="/map" className="flex items-center gap-2">
+                <Map className="w-4 h-4" />
+                Map
+              </Link>
             </Button>
-            <Button variant="destructive" onClick={handleLogout}>
+            <Button 
+              variant="destructive" 
+              onClick={handleLogout}
+              className="flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
               Sign Out
             </Button>
           </div>
         </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-500">Display Name</p>
-              <p className="text-lg">{profile.display_name}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Purdue Email</p>
-              <p className="text-lg flex items-center gap-2">
-                {profile.purdue_email}
-                {profile.is_verified && (
-                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Verified</span>
-                )}
-              </p>
-            </div>
-            {profile.graduation_year && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="col-span-2 bg-white/10 border-white/20 text-white">
+            <CardHeader>
+              <CardTitle className="text-2xl">Profile Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
               <div>
-                <p className="text-sm text-gray-500">Expected Graduation</p>
-                <p className="text-lg">{profile.graduation_year}</p>
+                <p className="text-sm text-gray-300">Display Name</p>
+                <p className="text-xl">{profile.display_name}</p>
               </div>
-            )}
-            <div>
-              <p className="text-sm text-gray-500">Member Since</p>
-              <p className="text-lg">{new Date(profile.created_at).toLocaleDateString()}</p>
-            </div>
-          </CardContent>
-        </Card>
+              <div>
+                <p className="text-sm text-gray-300">Purdue Email</p>
+                <p className="text-xl flex items-center gap-2">
+                  {profile.purdue_email}
+                  {profile.is_verified && (
+                    <span className="text-xs bg-green-500/20 text-green-300 px-3 py-1 rounded-full border border-green-500/30">
+                      Verified
+                    </span>
+                  )}
+                </p>
+              </div>
+              {profile.graduation_year && (
+                <div>
+                  <p className="text-sm text-gray-300">Expected Graduation</p>
+                  <p className="text-xl">{profile.graduation_year}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-gray-300">Member Since</p>
+                <p className="text-xl">{new Date(profile.created_at).toLocaleDateString()}</p>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Event Statistics</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Active Events</p>
-              <p className="text-2xl font-semibold">{activeEvents.length}</p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Total Events Created</p>
-              <p className="text-2xl font-semibold">{events.length}</p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Total Event Views</p>
-              <p className="text-2xl font-semibold">{totalViews}</p>
-            </div>
-          </CardContent>
-        </Card>
+          <Card className="bg-white/10 border-white/20 text-white">
+            <CardHeader>
+              <CardTitle className="text-2xl">Event Statistics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                <div className="flex items-center gap-2 text-[#B1810B]">
+                  <Calendar className="w-5 h-5" />
+                  <p className="text-sm">Active Events</p>
+                </div>
+                <p className="text-3xl font-semibold mt-1">{activeEvents.length}</p>
+              </div>
+              <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                <div className="flex items-center gap-2 text-[#B1810B]">
+                  <Trophy className="w-5 h-5" />
+                  <p className="text-sm">Total Events</p>
+                </div>
+                <p className="text-3xl font-semibold mt-1">{events.length}</p>
+              </div>
+              <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                <div className="flex items-center gap-2 text-[#B1810B]">
+                  <Eye className="w-5 h-5" />
+                  <p className="text-sm">Total Views</p>
+                </div>
+                <p className="text-3xl font-semibold mt-1">{totalViews}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {activeEvents.length > 0 && (
-          <Card>
+          <Card className="bg-white/10 border-white/20">
             <CardHeader>
-              <CardTitle>Active Events</CardTitle>
+              <CardTitle className="text-2xl text-white">Active Events</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {activeEvents.map(event => (
-                  <div key={event.id} className="p-4 border rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold">{event.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{event.description}</p>
-                      </div>
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                        {event.category}
-                      </span>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-500">
-                      <p>Starts: {formatEasternDateTime(event.start_time)}</p>
-                      <p>Ends: {formatEasternDateTime(event.end_time)}</p>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                      {event.view_count} views
-                    </div>
-                  </div>
+                  <EventCard key={event.id} event={event} showMapButton />
                 ))}
               </div>
             </CardContent>
@@ -248,31 +257,14 @@ export default function ProfilePage() {
         )}
 
         {pastEvents.length > 0 && (
-          <Card>
+          <Card className="bg-white/10 border-white/20">
             <CardHeader>
-              <CardTitle>Past Events</CardTitle>
+              <CardTitle className="text-2xl text-white">Past Events</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {pastEvents.map(event => (
-                  <div key={event.id} className="p-4 border rounded-lg opacity-75">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold">{event.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{event.description}</p>
-                      </div>
-                      <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
-                        {event.category}
-                      </span>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-500">
-                      <p>Started: {formatEasternDateTime(event.start_time)}</p>
-                      <p>Ended: {formatEasternDateTime(event.end_time)}</p>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-400">
-                      {event.view_count} views
-                    </div>
-                  </div>
+                  <EventCard key={event.id} event={event} showMapButton />
                 ))}
               </div>
             </CardContent>

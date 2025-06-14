@@ -11,6 +11,7 @@ import { CreateEventModal } from './CreateEventModal'
 import { EditEventModal } from './EditEventModal'
 import { formatEasternDateTime } from '@/lib/date'
 import { EventDetailsSheet } from './EventDetailsSheet'
+import { useRouter } from 'next/navigation'
 
 // Initialize Mapbox
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!
@@ -50,6 +51,9 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [showEventDetails, setShowEventDetails] = useState(false)
   const [events, setEvents] = useState<Event[]>([])
+  const router = useRouter()
+  const searchParams = new URLSearchParams(window.location.search)
+  const eventId = searchParams.get('event')
 
   // Load active events from database
   useEffect(() => {
@@ -66,6 +70,23 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
       }
 
       setEvents(data)
+
+      // If there's an event ID in the URL, select and show that event
+      if (eventId && data) {
+        const event = data.find(e => e.id === eventId)
+        if (event) {
+          setSelectedEvent(event)
+          setShowEventDetails(true)
+          // Center map on the event location
+          if (map.current) {
+            map.current.flyTo({
+              center: [event.longitude, event.latitude],
+              zoom: 17,
+              essential: true
+            })
+          }
+        }
+      }
     }
 
     loadEvents()
@@ -87,7 +108,7 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
     return () => {
       channel.unsubscribe()
     }
-  }, [])
+  }, [eventId])
 
   // Display events on map
   useEffect(() => {
