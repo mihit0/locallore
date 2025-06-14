@@ -61,8 +61,10 @@ export default function DiscoveryPage() {
     <div className="min-h-screen bg-[#000000] bg-[radial-gradient(#B1810B_1px,transparent_1px)] [background-size:16px_16px]">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Discover Events</h1>
-          <p className="text-gray-400">Find what's happening on campus right now</p>
+          <h1 className="text-4xl font-bold text-white mb-4">Discover Events</h1>
+          <p className="text-xl text-[#B1810B] font-medium bg-white/5 backdrop-blur-sm py-2 px-4 rounded-full inline-block">
+            Find what's happening on campus right now
+          </p>
         </div>
         
         <Tabs 

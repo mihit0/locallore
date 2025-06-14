@@ -11,6 +11,7 @@ import { Event } from '@/types/event'
 import { formatEasternDateTime } from '@/lib/date'
 import { EventCard } from '@/components/EventCard'
 import { LogOut, Home, Map, Trophy, Calendar, Eye } from 'lucide-react'
+import { EditEventModal } from '@/components/map/EditEventModal'
 
 interface UserProfile {
   username: string
@@ -27,6 +28,8 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const [showEditModal, setShowEditModal] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -126,6 +129,26 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Error signing out:', error)
     }
+  }
+
+  const handleEditEvent = (event: Event) => {
+    setSelectedEvent(event)
+    setShowEditModal(true)
+  }
+
+  const handleEditSuccess = async () => {
+    // Reload events after edit
+    const { data: eventsData } = await supabase
+      .from('events')
+      .select('*')
+      .eq('user_id', user?.id)
+      .order('start_time', { ascending: true })
+
+    if (eventsData) {
+      setEvents(eventsData)
+    }
+    setShowEditModal(false)
+    setSelectedEvent(null)
   }
 
   if (loading) {
@@ -249,7 +272,17 @@ export default function ProfilePage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {activeEvents.map(event => (
-                  <EventCard key={event.id} event={event} showMapButton />
+                  <div key={event.id} className="relative">
+                    <EventCard event={event} showMapButton />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="absolute top-2 right-2 bg-white/90 hover:bg-white"
+                      onClick={() => handleEditEvent(event)}
+                    >
+                      Edit
+                    </Button>
+                  </div>
                 ))}
               </div>
             </CardContent>
@@ -264,13 +297,33 @@ export default function ProfilePage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {pastEvents.map(event => (
-                  <EventCard key={event.id} event={event} showMapButton />
+                  <div key={event.id} className="relative">
+                    <EventCard event={event} showMapButton />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="absolute top-2 right-2 bg-white/90 hover:bg-white"
+                      onClick={() => handleEditEvent(event)}
+                    >
+                      Edit
+                    </Button>
+                  </div>
                 ))}
               </div>
             </CardContent>
           </Card>
         )}
       </div>
+
+      <EditEventModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false)
+          setSelectedEvent(null)
+        }}
+        event={selectedEvent}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   )
 }

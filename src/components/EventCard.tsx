@@ -88,6 +88,15 @@ export function EventCard({ event, showMapButton = false }: EventCardProps) {
         ref={cardRef}
         className="w-full p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-white to-gray-50"
       >
+        {event.image_url && (
+          <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+            <img 
+              src={event.image_url} 
+              alt={event.title}
+              className="absolute inset-0 w-full h-full object-contain bg-gray-100"
+            />
+          </div>
+        )}
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold line-clamp-2 text-[#000000]">{event.title}</h3>
           <Badge variant="outline" className={CATEGORY_COLORS[event.category]}>

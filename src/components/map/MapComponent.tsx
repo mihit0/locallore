@@ -164,19 +164,28 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
     })
 
     // Add event listener for view details button clicks
-    const handleViewEventDetails = (event: CustomEvent<string>) => {
+    const handleViewEventDetails = async (event: CustomEvent<string>) => {
       const eventId = event.detail
       const eventToView = events.find(e => e.id === eventId)
       if (eventToView) {
+        try {
+          await fetch(`/api/events/${eventId}/interact`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'view' })
+          });
+        } catch (error) {
+          console.error('Error tracking view:', error);
+        }
         setSelectedEvent(eventToView)
         setShowEventDetails(true)
       }
     }
 
-    document.addEventListener('viewEventDetails', handleViewEventDetails as EventListener)
+    document.addEventListener('viewEventDetails', handleViewEventDetails as unknown as EventListener)
 
     return () => {
-      document.removeEventListener('viewEventDetails', handleViewEventDetails as EventListener)
+      document.removeEventListener('viewEventDetails', handleViewEventDetails as unknown as EventListener)
     }
   }, [events, map.current, user])
 

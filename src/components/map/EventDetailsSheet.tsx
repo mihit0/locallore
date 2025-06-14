@@ -107,11 +107,11 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetai
           {event.image_url && (
             <div>
               <h3 className="text-sm font-medium mb-2">Event Image</h3>
-              <div className="relative w-full h-64 overflow-hidden rounded-lg">
+              <div className="relative w-full h-64 overflow-hidden rounded-lg bg-gray-100">
                 <img 
                   src={event.image_url} 
                   alt={event.title}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
               </div>
             </div>
