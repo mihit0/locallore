@@ -1,5 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -11,11 +10,11 @@ export async function GET(request: Request) {
     const limit = 20;
     const offset = (page - 1) * limit;
 
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createClient();
 
-    // Get current user's session
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    // Get current user (more secure than getSession)
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -23,7 +22,7 @@ export async function GET(request: Request) {
     const { data: interactions } = await supabase
       .from('user_event_interactions')
       .select('event_id')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50);
 
@@ -95,7 +94,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ events: events || [] });
   } catch (error) {
-    console.error('Error in personalized events route:', error);
+    console.error('Error in for-you events route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

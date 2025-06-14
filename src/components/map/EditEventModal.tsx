@@ -16,7 +16,7 @@ import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth"
 import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Event, EventCategory, EditEventModalProps } from "@/types"
+import { EventCategory, EditEventModalProps } from "@/types"
 import { localToEastern, easternToLocal, getCurrentEasternTime, getMaxEasternTime } from "@/lib/date"
 
 export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventModalProps) {

@@ -1,5 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +10,7 @@ export async function GET(request: Request) {
     const limit = 20;
     const offset = (page - 1) * limit;
 
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = await createClient();
 
     const { data: events, error } = await supabase
       .from('events')
