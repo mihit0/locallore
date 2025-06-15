@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { Event } from '@/types/event'
 // import { formatEasternDateTime } from '@/lib/date'
 import { EventCard } from '@/components/EventCard'
+import { ProfileEventCard } from '@/components/ProfileEventCard'
 import { LogOut, Home, Map, Trophy, Calendar, Eye, Edit, Trash2 } from 'lucide-react'
 import { EditEventModal } from '@/components/map/EditEventModal'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -466,17 +467,12 @@ export default function ProfilePage() {
             <h2 className="text-2xl font-semibold text-white">Active Events</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {activeEvents.map(event => (
-                <div key={event.id} className="relative">
-                  <EventCard event={event} showMapButton />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-2 right-2 text-gray-300 hover:bg-gray-800 backdrop-blur-sm transition-all duration-200"
-                    onClick={() => handleEditEvent(event)}
-                  >
-                    <span className="text-xs">Edit</span>
-                  </Button>
-                </div>
+                <ProfileEventCard 
+                  key={event.id} 
+                  event={event} 
+                  showMapButton 
+                  onEdit={handleEditEvent}
+                />
               ))}
             </div>
           </div>
@@ -488,17 +484,12 @@ export default function ProfilePage() {
             <h2 className="text-2xl font-semibold text-white">Past Events</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {pastEvents.map(event => (
-                <div key={event.id} className="relative">
-                  <EventCard event={event} showMapButton />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-2 right-2 text-gray-300 hover:bg-gray-800 backdrop-blur-sm transition-all duration-200"
-                    onClick={() => handleEditEvent(event)}
-                  >
-                    <span className="text-xs">Edit</span>
-                  </Button>
-                </div>
+                <ProfileEventCard 
+                  key={event.id} 
+                  event={event} 
+                  showMapButton 
+                  onEdit={handleEditEvent}
+                />
               ))}
             </div>
           </div>

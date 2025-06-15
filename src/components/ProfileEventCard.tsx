@@ -5,7 +5,7 @@ import { formatDistanceToNow, format } from 'date-fns';
 import { Event } from '@/types/event';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, MapPin } from 'lucide-react';
+import { Eye, MapPin, Edit } from 'lucide-react';
 import { EventDetailsSheet } from '@/components/map/EventDetailsSheet';
 import { useRouter } from 'next/navigation';
 
@@ -18,12 +18,13 @@ const CATEGORY_COLORS = {
   Other: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
 } as const;
 
-interface EventCardProps {
+interface ProfileEventCardProps {
   event: Event;
   showMapButton?: boolean;
+  onEdit?: (event: Event) => void;
 }
 
-export function EventCard({ event, showMapButton = false }: EventCardProps) {
+export function ProfileEventCard({ event, showMapButton = false, onEdit }: ProfileEventCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [showDetails, setShowDetails] = useState(false);
   const router = useRouter();
@@ -71,6 +72,13 @@ export function EventCard({ event, showMapButton = false }: EventCardProps) {
     router.push(`/map?event=${event.id}`);
   };
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEdit) {
+      onEdit(event);
+    }
+  };
+
   const getTimeDisplay = () => {
     const startTime = new Date(event.start_time);
     const now = new Date();
@@ -97,9 +105,20 @@ export function EventCard({ event, showMapButton = false }: EventCardProps) {
             />
           </div>
         )}
+        
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold line-clamp-2 text-white">{event.title}</h3>
-          <Badge variant="outline" className={`${CATEGORY_COLORS[event.category]} backdrop-blur-sm text-xs border-0 flex-shrink-0`}>
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <h3 className="text-lg font-semibold line-clamp-2 text-white flex-1">{event.title}</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-300 hover:bg-gray-800 transition-all duration-200 p-1 flex-shrink-0"
+              onClick={handleEdit}
+            >
+              <Edit className="w-3 h-3" />
+            </Button>
+          </div>
+          <Badge variant="outline" className={`${CATEGORY_COLORS[event.category]} backdrop-blur-sm text-xs border-0 flex-shrink-0 ml-2`}>
             {event.category}
           </Badge>
         </div>

@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { EventCard } from "@/components/EventCard";
+import { MasonryLayout } from "@/components/MasonryLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Event } from "@/types/event";
 import { Compass, TrendingUp, Clock } from "lucide-react";
@@ -101,16 +102,16 @@ export default function DiscoveryPage() {
           {user && (
             <TabsContent value="for-you" className="mt-4 space-y-4">
               {loading && page === 1 ? (
-                <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {Array(3).fill(0).map((_, i) => <EventCardSkeleton key={i} />)}
+                <div className="flex gap-4 items-start">
+                  {Array(3).fill(0).map((_, colIndex) => (
+                    <div key={colIndex} className="flex-1 space-y-4">
+                      <EventCardSkeleton />
+                    </div>
+                  ))}
                 </div>
               ) : events.length > 0 ? (
                 <>
-                  <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    {events.map((event) => (
-                      <EventCard key={event.id} event={event} />
-                    ))}
-                  </div>
+                  <MasonryLayout events={events} />
                   {hasMore && <div ref={ref} className="h-10" />}
                 </>
               ) : (
@@ -123,16 +124,16 @@ export default function DiscoveryPage() {
 
           <TabsContent value="popular" className="mt-4 space-y-4">
             {loading && page === 1 ? (
-              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {Array(3).fill(0).map((_, i) => <EventCardSkeleton key={i} />)}
+              <div className="flex gap-4 items-start">
+                {Array(3).fill(0).map((_, colIndex) => (
+                  <div key={colIndex} className="flex-1 space-y-4">
+                    <EventCardSkeleton />
+                  </div>
+                ))}
               </div>
             ) : events.length > 0 ? (
               <>
-                <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {events.map((event) => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
-                </div>
+                <MasonryLayout events={events} />
                 {hasMore && <div ref={ref} className="h-10" />}
               </>
             ) : (
@@ -144,16 +145,16 @@ export default function DiscoveryPage() {
 
           <TabsContent value="latest" className="mt-4 space-y-4">
             {loading && page === 1 ? (
-              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {Array(3).fill(0).map((_, i) => <EventCardSkeleton key={i} />)}
+              <div className="flex gap-4 items-start">
+                {Array(3).fill(0).map((_, colIndex) => (
+                  <div key={colIndex} className="flex-1 space-y-4">
+                    <EventCardSkeleton />
+                  </div>
+                ))}
               </div>
             ) : events.length > 0 ? (
               <>
-                <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                  {events.map((event) => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
-                </div>
+                <MasonryLayout events={events} />
                 {hasMore && <div ref={ref} className="h-10" />}
               </>
             ) : (
