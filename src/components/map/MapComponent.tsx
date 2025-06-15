@@ -6,7 +6,8 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 // import { Button } from '@/components/ui/button'
-import { Event, EventCategory } from '@/types'
+import { Event } from '@/types/event'
+import { EventCategory } from '@/types'
 import { CreateEventModal } from './CreateEventModal'
 import { EditEventModal } from './EditEventModal'
 import { formatEasternDateTime } from '@/lib/date'
@@ -60,7 +61,13 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
     async function loadEvents() {
       const { data, error } = await supabase
         .from('events')
-        .select('*')
+        .select(`
+          *,
+          creator:user_id (
+            display_name,
+            graduation_year
+          )
+        `)
         .gte('end_time', new Date().toISOString()) // Only get active events
         .order('start_time', { ascending: true })
 
@@ -69,7 +76,8 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
         return
       }
 
-      setEvents(data)
+      console.log('Events loaded:', data?.length || 0, 'events')
+      setEvents(data || [])
 
       // If there's an event ID in the URL, select and show that event
       if (eventId && data) {

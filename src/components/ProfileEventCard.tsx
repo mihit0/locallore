@@ -90,6 +90,12 @@ export function ProfileEventCard({ event, showMapButton = false, onEdit }: Profi
     }
   };
 
+  const isEventActive = () => {
+    const now = new Date();
+    const endTime = new Date(event.end_time);
+    return endTime > now;
+  };
+
   return (
     <>
       <div 
@@ -125,13 +131,15 @@ export function ProfileEventCard({ event, showMapButton = false, onEdit }: Profi
 
         <div className="text-xs text-gray-400 mb-3 space-y-1">
           <div>{getTimeDisplay()}</div>
-          <button 
-            onClick={handleViewOnMap}
-            className="text-[#B1810B] hover:text-[#D4940D] flex items-center gap-1 transition-colors duration-200"
-          >
-            <MapPin className="w-3 h-3" />
-            <span className="text-xs">View on Map</span>
-          </button>
+          {isEventActive() && (
+            <button 
+              onClick={handleViewOnMap}
+              className="text-[#B1810B] hover:text-[#D4940D] flex items-center gap-1 transition-colors duration-200"
+            >
+              <MapPin className="w-3 h-3" />
+              <span className="text-xs">View on Map</span>
+            </button>
+          )}
         </div>
 
         <p className="text-gray-300 line-clamp-2 mb-4 text-xs">{event.description}</p>
@@ -145,7 +153,7 @@ export function ProfileEventCard({ event, showMapButton = false, onEdit }: Profi
             )}
           </div>
           <div className="flex gap-2">
-            {showMapButton && (
+            {showMapButton && isEventActive() && (
               <Button 
                 onClick={handleViewOnMap}
                 variant="ghost"

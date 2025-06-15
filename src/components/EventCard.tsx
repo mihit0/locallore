@@ -122,7 +122,14 @@ export function EventCard({ event, showMapButton = false }: EventCardProps) {
             <Eye className="w-3 h-3" />
             <span>{event.view_count}</span>
             {event.creator && (
-              <span>• by {event.creator.display_name} '{event.creator.graduation_year?.toString().slice(-2)}</span>
+              <>
+                <span>•</span>
+                <span className="hidden md:inline"> by </span>
+                <span>{event.creator.display_name}</span>
+                <span className="hidden md:inline">
+                  {event.creator.graduation_year && ` '${event.creator.graduation_year.toString().slice(-2)}`}
+                </span>
+              </>
             )}
           </div>
           <div className="flex gap-2">

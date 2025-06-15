@@ -5,12 +5,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { Event } from "@/types"
+import { Event } from "@/types/event"
 import { formatEasternDateTime } from "@/lib/date"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, X } from "lucide-react"
+import { MapPin, X, Eye } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 interface EventDetailsSheetProps {
@@ -44,6 +44,12 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetai
   const router = useRouter()
 
   if (!event) return null
+
+  const isEventActive = () => {
+    const now = new Date()
+    const endTime = new Date(event.end_time)
+    return endTime > now
+  }
 
   const handleViewOnMap = () => {
     onClose() // Close the sheet first
@@ -104,17 +110,19 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetai
 
           <div className="w-full h-px bg-white/20"></div>
 
-          <div>
-            <h3 className="text-sm font-medium mb-2 text-white">Location</h3>
-            <Button 
-              variant="ghost" 
-              className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white border border-white/20"
-              onClick={handleViewOnMap}
-            >
-              <MapPin className="w-4 h-4" />
-              View on Map
-            </Button>
-          </div>
+          {isEventActive() && (
+            <div>
+              <h3 className="text-sm font-medium mb-2 text-white">Location</h3>
+              <Button 
+                variant="ghost" 
+                className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white border border-white/20"
+                onClick={handleViewOnMap}
+              >
+                <MapPin className="w-4 h-4" />
+                View on Map
+              </Button>
+            </div>
+          )}
 
           {event.contact_info && (
             <>
@@ -144,8 +152,19 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetai
 
           <div className="w-full h-px bg-white/20"></div>
           
-          <div className="text-sm text-gray-400">
-            {event.view_count} views
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            <Eye className="w-3 h-3" />
+            <span>{event.view_count}</span>
+            {event.creator && (
+              <>
+                <span>•</span>
+                <span className="hidden md:inline">by </span>
+                <span>{event.creator.display_name}</span>
+                <span className="hidden md:inline">
+                  {event.creator.graduation_year && ` '${event.creator.graduation_year.toString().slice(-2)}`}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </SheetContent>

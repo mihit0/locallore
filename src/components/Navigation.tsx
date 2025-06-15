@@ -27,7 +27,7 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-[#000000] to-[#000000]/90 border-t border-white/10 py-2 px-4 md:px-6 backdrop-blur-sm">
+    <nav className="fixed bottom-0 left-0 right-0 bg-black py-2 px-4 md:px-6">
       <div className="container mx-auto">
         <div className="flex justify-around items-center">
           {links.map(({ href, label, icon: Icon }) => (
@@ -35,14 +35,14 @@ export function Navigation() {
               key={href}
               href={href}
               className={cn(
-                'flex flex-col items-center gap-1 p-2 text-sm transition-colors rounded-lg',
+                'flex flex-col items-center gap-1 p-2 text-xs transition-colors',
                 pathname === href
-                  ? 'text-[#B1810B] bg-white/10'
-                  : 'text-white/70 hover:text-[#B1810B] hover:bg-white/5'
+                  ? 'text-white'
+                  : 'text-white/60 hover:text-white'
               )}
             >
-              <Icon className="w-6 h-6" />
-              <span className="font-medium">{label}</span>
+              <Icon className="w-5 h-5" />
+              <span className="font-normal">{label}</span>
             </Link>
           ))}
         </div>

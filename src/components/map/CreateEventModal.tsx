@@ -18,6 +18,8 @@ import { toast } from "sonner"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { EventCategory, CreateEventModalProps } from "@/types"
 import { localToEastern, getCurrentEasternTime, getMaxEasternTime } from "@/lib/date"
+import { ImageUpload } from "@/components/ui/ImageUpload"
+import { deleteEventImage } from "@/lib/storage"
 
 export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: CreateEventModalProps) {
   const { user } = useAuth()
@@ -76,6 +78,14 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
     setImageUrl("")
   }
 
+  const handleImageUpload = (url: string) => {
+    setImageUrl(url)
+  }
+
+  const handleImageRemove = () => {
+    setImageUrl("")
+  }
+
   const isValidForm = () => {
     const now = new Date(getCurrentEasternTime())
     const start = new Date(localToEastern(startTime))
@@ -97,7 +107,7 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] bg-black text-white border border-white/20">
+      <DialogContent className="sm:max-w-[600px] bg-black text-white border border-white/20 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">Create New Event</DialogTitle>
           <DialogDescription className="text-gray-300">
@@ -131,9 +141,9 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-white">Start Time (Enter in ET)</label>
+              <label className="text-sm font-medium text-white mb-2 block">Start Time (Enter in ET)</label>
               <div className="relative">
                 <Input
                   type="datetime-local"
@@ -141,20 +151,20 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
                   onChange={(e) => setStartTime(e.target.value)}
                   min={new Date().toISOString().slice(0, 16)}
                   max={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
-                  className="bg-gray-900 border-white/20 text-white"
+                  className="bg-gray-900 border-white/20 text-white pr-8"
                 />
                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-400">ET</span>
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-white">End Time (Enter in ET)</label>
+              <label className="text-sm font-medium text-white mb-2 block">End Time (Enter in ET)</label>
               <div className="relative">
                 <Input
                   type="datetime-local"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                   min={startTime || new Date().toISOString().slice(0, 16)}
-                  className="bg-gray-900 border-white/20 text-white"
+                  className="bg-gray-900 border-white/20 text-white pr-8"
                 />
                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-400">ET</span>
               </div>
@@ -162,7 +172,7 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
           </div>
 
           <div>
-            <label className="text-sm font-medium text-white">Category</label>
+            <label className="text-sm font-medium text-white mb-2 block">Category</label>
             <Select value={category} onValueChange={(value) => setCategory(value as EventCategory)}>
               <SelectTrigger className="bg-gray-900 border-white/20 text-white">
                 <SelectValue placeholder="Select a category" />
@@ -187,22 +197,22 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
           </div>
 
           <div>
-            <Input
-              placeholder="Image URL (optional)"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400"
+            <label className="text-sm font-medium text-white mb-2 block">Event Image (optional)</label>
+            <ImageUpload
+              onImageUpload={handleImageUpload}
+              onImageRemove={handleImageRemove}
+              currentImageUrl={imageUrl}
             />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose} className="text-gray-300 hover:bg-gray-800 hover:text-white">
+        <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-4">
+          <Button variant="ghost" onClick={onClose} className="text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto">
             Cancel
           </Button>
           <Button 
             onClick={handleSubmit}
             disabled={!isValidForm() || isSubmitting}
-            className="bg-[#B1810B] text-white hover:bg-[#8B6B09] disabled:bg-gray-700 disabled:text-gray-400"
+            className="bg-[#B1810B] text-white hover:bg-[#8B6B09] disabled:bg-gray-700 disabled:text-gray-400 w-full sm:w-auto"
           >
             {isSubmitting ? "Creating..." : "Create Event"}
           </Button>
