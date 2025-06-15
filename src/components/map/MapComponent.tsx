@@ -125,19 +125,20 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
       const timeRemaining = getTimeRemaining(event.end_time)
       const popup = new mapboxgl.Popup({ offset: 25 })
         .setHTML(`
-          <div class="p-3">
-            <div class="flex items-center gap-2 mb-2">
+          <div class="p-4 bg-black text-white border border-white/20 rounded max-w-xs">
+            <div class="flex items-center gap-2 mb-3">
               <span>${categoryIcons[event.category]}</span>
-              <h3 class="font-semibold">${event.title}</h3>
+              <h3 class="font-semibold text-white">${event.title}</h3>
             </div>
-            <p class="text-sm mb-2">${event.description.substring(0, 100)}${event.description.length > 100 ? '...' : ''}</p>
-            <div class="text-sm text-gray-600">
+            <p class="text-sm mb-3 text-gray-300">${event.description.substring(0, 100)}${event.description.length > 100 ? '...' : ''}</p>
+            <div class="w-full h-px bg-white/20 mb-3"></div>
+            <div class="text-xs text-gray-400 space-y-1">
               <p>Starts: ${formatEasternDateTime(event.start_time)}</p>
               <p>Ends: ${formatEasternDateTime(event.end_time)}</p>
-              <p class="mt-1">Time remaining: ${timeRemaining}</p>
+              <p class="mt-2">Time remaining: ${timeRemaining}</p>
             </div>
             <button 
-              class="mt-2 text-sm text-blue-600 hover:underline"
+              class="mt-3 w-full text-sm bg-[#B1810B] hover:bg-[#8B6B09] text-white py-2 px-3 rounded transition-colors duration-200"
               onclick="document.dispatchEvent(new CustomEvent('viewEventDetails', { detail: '${event.id}' }))"
             >
               View Details
@@ -310,7 +311,7 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
         style={{ minHeight: '100%' }}
       />
       {isCreatingEvent && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-lg">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black text-white px-4 py-2 rounded-full border border-white/20 backdrop-blur-sm">
           Click anywhere on the map to create an event
         </div>
       )}

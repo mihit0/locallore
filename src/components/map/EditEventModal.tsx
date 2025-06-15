@@ -127,10 +127,10 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] bg-black text-white border border-white/20">
         <DialogHeader>
-          <DialogTitle>Edit Event</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white">Edit Event</DialogTitle>
+          <DialogDescription className="text-gray-300">
             Update your event details. All times must be entered in Eastern Time (ET).
           </DialogDescription>
         </DialogHeader>
@@ -141,8 +141,9 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={100}
+              className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400"
             />
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-gray-400 mt-1">
               {title.trim().length}/100 characters
             </p>
           </div>
@@ -152,17 +153,17 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
               placeholder="Event Description (20-500 characters)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="min-h-[100px]"
+              className="min-h-[100px] bg-gray-900 border-white/20 text-white placeholder:text-gray-400"
               maxLength={500}
             />
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-gray-400 mt-1">
               {description.trim().length}/500 characters
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium">Start Time (Enter in ET)</label>
+              <label className="text-sm font-medium text-white">Start Time (Enter in ET)</label>
               <div className="relative">
                 <Input
                   type="datetime-local"
@@ -170,33 +171,35 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
                   onChange={(e) => setStartTime(e.target.value)}
                   min={new Date().toISOString().slice(0, 16)}
                   max={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                  className="bg-gray-900 border-white/20 text-white"
                 />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500">ET</span>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-400">ET</span>
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium">End Time (Enter in ET)</label>
+              <label className="text-sm font-medium text-white">End Time (Enter in ET)</label>
               <div className="relative">
                 <Input
                   type="datetime-local"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                   min={startTime || new Date().toISOString().slice(0, 16)}
+                  className="bg-gray-900 border-white/20 text-white"
                 />
-                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-500">ET</span>
+                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-400">ET</span>
               </div>
             </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium">Category</label>
+            <label className="text-sm font-medium text-white">Category</label>
             <Select value={category} onValueChange={(value) => setCategory(value as EventCategory)}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-gray-900 border-white/20 text-white">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-gray-900 border-white/20 text-white">
                 {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
+                  <SelectItem key={cat} value={cat} className="text-white hover:bg-gray-800">
                     {cat}
                   </SelectItem>
                 ))}
@@ -209,6 +212,7 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
               placeholder="Contact Info (optional)"
               value={contactInfo}
               onChange={(e) => setContactInfo(e.target.value)}
+              className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400"
             />
           </div>
 
@@ -217,24 +221,27 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
               placeholder="Image URL (optional)"
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
+              className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400"
             />
           </div>
         </div>
         <DialogFooter className="flex justify-between">
           <Button 
-            variant="destructive" 
+            variant="ghost" 
             onClick={handleDelete}
             disabled={isSubmitting}
+            className="text-red-400 hover:bg-red-500/20 hover:text-red-300"
           >
             Delete Event
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="ghost" onClick={onClose} className="text-gray-300 hover:bg-gray-800 hover:text-white">
               Cancel
             </Button>
             <Button 
               onClick={handleSubmit}
               disabled={!isValidForm() || isSubmitting}
+              className="bg-[#B1810B] text-white hover:bg-[#8B6B09] disabled:bg-gray-700 disabled:text-gray-400"
             >
               {isSubmitting ? "Updating..." : "Update Event"}
             </Button>

@@ -31,12 +31,12 @@ const categoryIcons = {
 } as const
 
 const CATEGORY_COLORS = {
-  Food: 'bg-amber-100 text-amber-800 border-amber-200',
-  Study: 'bg-blue-100 text-blue-800 border-blue-200',
-  Club: 'bg-purple-100 text-purple-800 border-purple-200',
-  Social: 'bg-green-100 text-green-800 border-green-200',
-  Academic: 'bg-red-100 text-red-800 border-red-200',
-  Other: 'bg-gray-100 text-gray-800 border-gray-200'
+  Food: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  Study: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  Club: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+  Social: 'bg-green-500/20 text-green-400 border-green-500/30',
+  Academic: 'bg-red-500/20 text-red-400 border-red-500/30',
+  Other: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
 } as const
 
 export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetailsSheetProps) {
@@ -51,21 +51,25 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetai
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-gradient-to-b from-white to-gray-50">
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-black border-l border-white/20">
         <SheetHeader className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-2xl">{categoryIcons[event.category]}</span>
-              <SheetTitle className="text-2xl text-[#000000]">{event.title}</SheetTitle>
+              <SheetTitle className="text-2xl text-white">{event.title}</SheetTitle>
             </div>
             {user && user.id === event.user_id && onEdit && (
-              <Button variant="outline" onClick={onEdit}>
+              <Button 
+                variant="ghost" 
+                className="text-gray-300 hover:bg-gray-800 hover:text-white"
+                onClick={onEdit}
+              >
                 Edit Event
               </Button>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className={CATEGORY_COLORS[event.category]}>
+            <Badge variant="outline" className={`${CATEGORY_COLORS[event.category]} backdrop-blur-sm text-xs border-0`}>
               {event.category}
             </Badge>
           </div>
@@ -73,23 +77,27 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetai
 
         <div className="mt-6 space-y-6">
           <div>
-            <h3 className="text-sm font-medium mb-2">Description</h3>
-            <p className="text-sm text-gray-600 whitespace-pre-wrap">{event.description}</p>
+            <h3 className="text-sm font-medium mb-2 text-white">Description</h3>
+            <p className="text-sm text-gray-300 whitespace-pre-wrap">{event.description}</p>
           </div>
 
+          <div className="w-full h-px bg-white/20"></div>
+
           <div>
-            <h3 className="text-sm font-medium mb-2">Time</h3>
-            <div className="text-sm text-gray-600">
+            <h3 className="text-sm font-medium mb-2 text-white">Time</h3>
+            <div className="text-sm text-gray-300">
               <p>Starts: {formatEasternDateTime(event.start_time)}</p>
               <p>Ends: {formatEasternDateTime(event.end_time)}</p>
             </div>
           </div>
 
+          <div className="w-full h-px bg-white/20"></div>
+
           <div>
-            <h3 className="text-sm font-medium mb-2">Location</h3>
+            <h3 className="text-sm font-medium mb-2 text-white">Location</h3>
             <Button 
-              variant="outline" 
-              className="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50"
+              variant="ghost" 
+              className="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white border border-white/20"
               onClick={handleViewOnMap}
             >
               <MapPin className="w-4 h-4" />
@@ -98,25 +106,33 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetai
           </div>
 
           {event.contact_info && (
-            <div>
-              <h3 className="text-sm font-medium mb-2">Contact Information</h3>
-              <p className="text-sm text-gray-600">{event.contact_info}</p>
-            </div>
+            <>
+              <div className="w-full h-px bg-white/20"></div>
+              <div>
+                <h3 className="text-sm font-medium mb-2 text-white">Contact Information</h3>
+                <p className="text-sm text-gray-300">{event.contact_info}</p>
+              </div>
+            </>
           )}
 
           {event.image_url && (
-            <div>
-              <h3 className="text-sm font-medium mb-2">Event Image</h3>
-              <div className="relative w-full h-64 overflow-hidden rounded-lg bg-gray-100">
-                <img 
-                  src={event.image_url} 
-                  alt={event.title}
-                  className="absolute inset-0 w-full h-full object-contain"
-                />
+            <>
+              <div className="w-full h-px bg-white/20"></div>
+              <div>
+                <h3 className="text-sm font-medium mb-2 text-white">Event Image</h3>
+                <div className="relative w-full h-64 overflow-hidden rounded bg-gray-900 border border-white/20">
+                  <img 
+                    src={event.image_url} 
+                    alt={event.title}
+                    className="absolute inset-0 w-full h-full object-contain"
+                  />
+                </div>
               </div>
-            </div>
+            </>
           )}
 
+          <div className="w-full h-px bg-white/20"></div>
+          
           <div className="text-sm text-gray-400">
             {event.view_count} views
           </div>

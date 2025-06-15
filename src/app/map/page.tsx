@@ -22,14 +22,14 @@ export default function MapPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="bg-white border-b p-4 flex justify-between items-center">
+      <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center">
         <Link href="/">
-          <Button variant="ghost">← Back to Home</Button>
+          <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">← Back to Home</Button>
         </Link>
-        <h1 className="text-xl font-semibold">Purdue Events Map</h1>
+        <h1 className="text-xl font-semibold text-white">Purdue Events Map</h1>
         <Button 
           onClick={handleCreateEvent}
-          variant={isCreatingEvent ? "secondary" : "default"}
+          className={isCreatingEvent ? "bg-gray-800 text-white hover:bg-gray-700" : "bg-[#B1810B] text-white hover:bg-[#8B6B09]"}
         >
           {isCreatingEvent ? "Cancel" : user ? "Create Event" : "Sign in to Create Event"}
         </Button>
