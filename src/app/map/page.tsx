@@ -29,7 +29,8 @@ export default function MapPage() {
         <h1 className="text-xl font-semibold text-white">Purdue Events Map</h1>
         <Button 
           onClick={handleCreateEvent}
-          className={isCreatingEvent ? "bg-gray-800 text-white hover:bg-gray-700" : "bg-[#B1810B] text-white hover:bg-[#8B6B09]"}
+          variant="ghost"
+          className={isCreatingEvent ? "text-gray-300 hover:bg-gray-800 hover:text-white" : "text-[#B1810B] hover:bg-[#B1810B]/20 hover:text-[#D4940D]"}
         >
           {isCreatingEvent ? "Cancel" : user ? "Create Event" : "Sign in to Create Event"}
         </Button>

@@ -88,11 +88,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#B1810B] to-black">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <Card className="w-full max-w-md bg-black border border-white/20">
         <CardHeader>
-          <CardTitle>Login to LocalLore</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-white text-center">Login to LocalLore</CardTitle>
+          <CardDescription className="text-gray-300 text-center">
             Access your Purdue events dashboard
           </CardDescription>
         </CardHeader>
@@ -107,6 +107,7 @@ export default function LoginPage() {
                 required
                 pattern="[^@]+@purdue\.edu"
                 title="Please use your Purdue email address"
+                className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400"
               />
             </div>
             
@@ -117,26 +118,33 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400"
               />
             </div>
 
             {error && (
-              <p className="text-red-500 text-sm">{error}</p>
+              <p className="text-red-400 text-sm">{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button 
+              type="submit" 
+              className="w-full bg-[#B1810B] text-white hover:bg-[#8B6B09] disabled:bg-gray-700 disabled:text-gray-400" 
+              disabled={loading}
+            >
               {loading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
 
-          <div className="mt-4 text-center space-y-2">
-            <p className="text-sm text-gray-600">
+          <div className="w-full h-px bg-white/20 my-6"></div>
+
+          <div className="text-center space-y-3">
+            <p className="text-sm text-gray-300">
               Don't have an account?{' '}
-              <Link href="/auth/signup" className="text-blue-600 hover:underline">
+              <Link href="/auth/signup" className="text-[#B1810B] hover:text-[#D4940D] transition-colors">
                 Sign up with @purdue.edu
               </Link>
             </p>
-            <Link href="/" className="text-sm text-gray-500 hover:underline">
+            <Link href="/" className="text-sm text-gray-400 hover:text-gray-300 transition-colors block">
               Back to Home
             </Link>
           </div>

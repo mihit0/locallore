@@ -123,9 +123,13 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
     // Add markers for each event
     events.forEach(event => {
       const timeRemaining = getTimeRemaining(event.end_time)
-      const popup = new mapboxgl.Popup({ offset: 25 })
+      const popup = new mapboxgl.Popup({ 
+        offset: 25,
+        closeButton: false,
+        className: 'mapbox-popup-black'
+      })
         .setHTML(`
-          <div class="p-4 bg-black text-white border border-white/20 rounded max-w-xs">
+          <div class="p-4 bg-black text-white rounded max-w-xs">
             <div class="flex items-center gap-2 mb-3">
               <span>${categoryIcons[event.category]}</span>
               <h3 class="font-semibold text-white">${event.title}</h3>

@@ -160,7 +160,7 @@ export function ProfileEventCard({ event, showMapButton = false, onEdit }: Profi
               onClick={handleClick} 
               variant="ghost"
               size="sm"
-              className="bg-[#B1810B] text-white hover:bg-[#8B6B09] transition-colors duration-200 p-2"
+              className="text-[#B1810B] bg-[#B1810B]/10 hover:bg-[#B1810B]/20 hover:text-[#D4940D] transition-colors duration-200 p-2"
             >
               <span className="text-xs">Details</span>
             </Button>

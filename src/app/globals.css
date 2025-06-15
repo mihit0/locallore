@@ -134,3 +134,16 @@
   width: 100% !important;
   height: 100% !important;
 }
+
+/* Custom popup styling to remove borders and make it fully black */
+.mapbox-popup-black .mapboxgl-popup-content {
+  background: black !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.mapbox-popup-black .mapboxgl-popup-tip {
+  border-top-color: black !important;
+  border-bottom-color: black !important;
+}

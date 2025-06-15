@@ -44,11 +44,11 @@ export default function VerifyEmailPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen bg-black p-4 flex items-center justify-center">
+        <Card className="w-full max-w-md bg-black border border-white/20">
           <CardContent className="p-6">
-            <p className="text-center mb-4">Please log in to verify your email</p>
-            <Button asChild className="w-full">
+            <p className="text-center mb-4 text-white">Please log in to verify your email</p>
+            <Button asChild className="w-full bg-[#B1810B] text-white hover:bg-[#8B6B09]">
               <Link href="/auth/login">Login</Link>
             </Button>
           </CardContent>
@@ -58,37 +58,40 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 flex items-center justify-center">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen bg-black p-4 flex items-center justify-center">
+      <Card className="w-full max-w-md bg-black border border-white/20">
         <CardHeader>
-          <CardTitle>Verify Your Email</CardTitle>
+          <CardTitle className="text-white text-center">Verify Your Email</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p>
-            We've sent a verification email to <strong>{user.email}</strong>.
+          <p className="text-gray-300">
+            We've sent a verification email to <strong className="text-white">{user.email}</strong>.
             Please check your inbox and click the verification link to complete your registration.
           </p>
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-400">
             Make sure to check your spam folder if you don't see the email in your inbox.
           </p>
 
           {message && (
-            <p className={`text-sm ${message.includes('Failed') ? 'text-red-500' : 'text-green-500'}`}>
+            <p className={`text-sm ${message.includes('Failed') ? 'text-red-400' : 'text-green-400'}`}>
               {message}
             </p>
           )}
 
-          <div className="flex flex-col gap-2">
+          <div className="w-full h-px bg-white/20"></div>
+
+          <div className="flex flex-col gap-3">
             <Button
               onClick={handleResendEmail}
               disabled={isResending}
-              variant="outline"
+              variant="ghost"
+              className="text-gray-300 hover:bg-gray-800 hover:text-white"
             >
               {isResending ? 'Sending...' : 'Resend Verification Email'}
             </Button>
 
-            <Button asChild variant="ghost">
+            <Button asChild variant="ghost" className="text-gray-300 hover:bg-gray-800 hover:text-white">
               <Link href="/auth/login">Back to Login</Link>
             </Button>
           </div>
