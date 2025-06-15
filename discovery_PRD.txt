@@ -1,0 +1,98 @@
+# LocalLore Discovery Page - Implementation Prompt
+
+## Overview
+Create a discovery page for LocalLore that displays event cards in a feed format with different experiences for signed-in vs anonymous users. Include basic recommendation system that can evolve to ML later.
+
+## Page Structure
+
+### Tab Navigation
+- **Anonymous users**: ["Popular", "Latest"] 
+- **Signed-in users**: ["For You", "Popular", "Latest"]
+
+### Feed Layout
+- Mobile-first scrollable feed of event cards
+- 20 events per page with infinite scroll
+- Loading states with skeleton cards
+- Empty states with friendly messaging
+
+## EventCard Component Requirements
+
+Display for each event:
+- **Title** (bold, max 2 lines)
+- **Time** (relative: "in 30 min", "tomorrow 3pm") 
+- **Location** (building/area name)
+- **Category badge** (color-coded pill using Purdue colors)
+- **Description** (truncated to 2 lines with "...")
+- **View count** (small, subtle)
+- **Creator** ("by Sarah M. '26")
+- **"View Details" button**
+
+## API Endpoints to Create
+
+1. `GET /api/discovery/popular` - Events sorted by view_count DESC
+2. `GET /api/discovery/latest` - Events sorted by created_at DESC  
+3. `GET /api/discovery/personalized` - Recommendations for signed-in users
+4. `POST /api/events/[id]/interact` - Track user interactions
+
+## Recommendation Logic
+
+### For Anonymous Users
+- **Popular tab**: Sort by `view_count DESC, created_at DESC`
+- **Latest tab**: Sort by `created_at DESC`
+
+### For Signed-In Users  
+- **For You tab**: Simple recommendation algorithm:
+  1. Get user's interaction history from `user_event_interactions`
+  2. Find categories they've engaged with most
+  3. Score events: 40% category match + 30% recency + 20% popularity + 10% time preference
+  4. Fallback to popular events if no interaction history
+
+## Key Features
+
+### Interaction Tracking
+- Track "view" when card appears in viewport
+- Track "click" when user taps "View Details"
+- Store in `user_event_interactions` table
+- Update event `view_count` on each view
+
+### Performance Optimization
+- Cache popular/latest feeds for 5 minutes
+- Lazy load images in cards
+- Virtual scrolling for large lists
+- Debounce interaction tracking
+
+### Visual Design
+- Use Purdue colors: Gold (#B1810B) for accents, Black for text
+- Clean white cards with subtle shadows
+- Responsive design (mobile-first)
+- Smooth tab transitions
+
+## Implementation Priority
+
+**Phase 1** (Ship first):
+1. Build basic discovery page with Popular/Latest tabs
+2. Create EventCard component with all required info
+3. Add interaction tracking (view/click)
+4. Implement simple "For You" recommendations based on category preferences
+
+**Phase 2** (Enhance later):
+1. Add ML recommendation service
+2. Implement more sophisticated scoring
+3. Add features like event saving, sharing
+4. A/B test different recommendation approaches
+
+## Technical Requirements
+
+- Use existing Supabase schema + new `user_event_interactions` table
+- Filter events: only show where `end_time > now()`
+- Handle loading states and errors gracefully
+- Ensure accessibility (proper ARIA labels, keyboard navigation)
+- Mobile-optimized touch targets and interactions
+
+## Success Metrics
+- 15%+ click-through rate on event cards
+- Users view average 8+ events per session
+- "For You" tab shows 20%+ higher engagement than Popular (for signed-in users)
+- Page loads within 2 seconds
+
+Create a complete, functional discovery page that provides immediate value with simple recommendations, while being architected to support ML improvements later.

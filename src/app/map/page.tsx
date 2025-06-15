@@ -4,8 +4,21 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
-import MapComponent from '@/components/map/MapComponent'
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
+
+// Dynamically import MapComponent with SSR disabled to prevent window access issues
+const MapComponent = dynamic(
+  () => import('@/components/map/MapComponent'), 
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex-1 flex items-center justify-center bg-gray-900">
+        <div className="text-white">Loading map...</div>
+      </div>
+    )
+  }
+)
 
 export default function MapPage() {
   const { user } = useAuth()

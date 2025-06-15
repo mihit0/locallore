@@ -11,7 +11,7 @@ import { CreateEventModal } from './CreateEventModal'
 import { EditEventModal } from './EditEventModal'
 import { formatEasternDateTime } from '@/lib/date'
 import { EventDetailsSheet } from './EventDetailsSheet'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 // Initialize Mapbox
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!
@@ -52,7 +52,7 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
   const [showEventDetails, setShowEventDetails] = useState(false)
   const [events, setEvents] = useState<Event[]>([])
   const router = useRouter()
-  const searchParams = new URLSearchParams(window.location.search)
+  const searchParams = useSearchParams()
   const eventId = searchParams.get('event')
 
   // Load active events from database
