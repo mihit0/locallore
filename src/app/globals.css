@@ -119,6 +119,20 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Ensure black background for mobile viewport beyond page borders */
+  html {
+    background-color: black !important;
+  }
+  
+  /* Fix safe area for mobile browsers */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+      padding-top: max(0px, env(safe-area-inset-top));
+    }
+  }
 }
 
 @tailwind base;

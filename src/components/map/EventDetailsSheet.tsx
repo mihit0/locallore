@@ -10,7 +10,7 @@ import { formatEasternDateTime } from "@/lib/date"
 import { useAuth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MapPin } from "lucide-react"
+import { MapPin, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 interface EventDetailsSheetProps {
@@ -46,6 +46,7 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetai
   if (!event) return null
 
   const handleViewOnMap = () => {
+    onClose() // Close the sheet first
     router.push(`/map?event=${event.id}`)
   }
 
@@ -58,15 +59,25 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit }: EventDetai
               <span className="text-2xl">{categoryIcons[event.category]}</span>
               <SheetTitle className="text-2xl text-white">{event.title}</SheetTitle>
             </div>
-            {user && user.id === event.user_id && onEdit && (
+            <div className="flex items-center gap-2">
+              {user && user.id === event.user_id && onEdit && (
+                <Button 
+                  variant="ghost" 
+                  className="text-gray-300 hover:bg-gray-800 hover:text-white"
+                  onClick={onEdit}
+                >
+                  Edit Event
+                </Button>
+              )}
               <Button 
                 variant="ghost" 
+                size="sm"
                 className="text-gray-300 hover:bg-gray-800 hover:text-white"
-                onClick={onEdit}
+                onClick={onClose}
               >
-                Edit Event
+                <X className="w-4 h-4" />
               </Button>
-            )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className={`${CATEGORY_COLORS[event.category]} backdrop-blur-sm text-xs border-0`}>

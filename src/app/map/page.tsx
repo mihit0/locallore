@@ -13,7 +13,7 @@ const MapComponent = dynamic(
   { 
     ssr: false,
     loading: () => (
-      <div className="flex-1 flex items-center justify-center bg-gray-900">
+      <div className="flex-1 flex items-center justify-center bg-black">
         <div className="text-white">Loading map...</div>
       </div>
     )

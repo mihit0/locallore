@@ -17,10 +17,22 @@ export default function DiscoveryPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [activeTab, setActiveTab] = useState(user ? "for-you" : "popular");
+  const [isMobile, setIsMobile] = useState(false);
 
   const { ref, inView } = useInView({
     threshold: 0,
   });
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const fetchEvents = async (tab: string, pageNum: number) => {
     try {
@@ -60,10 +72,10 @@ export default function DiscoveryPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-6">
-        <div className="text-center mb-6 space-y-2">
-          <h1 className="text-4xl font-bold text-white">Discover Events</h1>
-          <p className="text-sm text-gray-400">
+      <div className="container mx-auto px-3 md:px-4 py-4 md:py-6 max-w-full overflow-x-hidden">
+        <div className="text-center mb-4 md:mb-6 space-y-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-white">Discover Events</h1>
+          <p className="text-xs md:text-sm text-gray-400">
             Find what's happening on campus right now
           </p>
         </div>
@@ -73,42 +85,36 @@ export default function DiscoveryPage() {
           onValueChange={setActiveTab} 
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-3 gap-3 bg-transparent p-0 mb-6">
+          <TabsList className="w-full grid grid-cols-3 gap-2 md:gap-3 bg-transparent p-0 mb-4 md:mb-6">
             {user && (
               <TabsTrigger 
                 value="for-you" 
-                className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white text-gray-300 bg-transparent hover:bg-gray-900 rounded flex items-center gap-2 font-medium py-2 px-4 transition-all duration-200 border-0"
+                className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white text-gray-300 bg-transparent hover:bg-gray-900 rounded flex items-center gap-1 md:gap-2 font-medium py-2 px-2 md:px-4 transition-all duration-200 border-0"
               >
-                <Compass className="w-4 h-4" />
-                <span className="text-sm">For You</span>
+                <Compass className="w-3 h-3 md:w-4 md:h-4" />
+                <span className="text-xs md:text-sm">For You</span>
               </TabsTrigger>
             )}
             <TabsTrigger 
               value="popular" 
-              className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white text-gray-300 bg-transparent hover:bg-gray-900 rounded flex items-center gap-2 font-medium py-2 px-4 transition-all duration-200 border-0"
+              className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white text-gray-300 bg-transparent hover:bg-gray-900 rounded flex items-center gap-1 md:gap-2 font-medium py-2 px-2 md:px-4 transition-all duration-200 border-0"
             >
-              <TrendingUp className="w-4 h-4" />
-              <span className="text-sm">Popular</span>
+              <TrendingUp className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="text-xs md:text-sm">Popular</span>
             </TabsTrigger>
             <TabsTrigger 
               value="latest" 
-              className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white text-gray-300 bg-transparent hover:bg-gray-900 rounded flex items-center gap-2 font-medium py-2 px-4 transition-all duration-200 border-0"
+              className="data-[state=active]:bg-[#B1810B] data-[state=active]:text-white text-gray-300 bg-transparent hover:bg-gray-900 rounded flex items-center gap-1 md:gap-2 font-medium py-2 px-2 md:px-4 transition-all duration-200 border-0"
             >
-              <Clock className="w-4 h-4" />
-              <span className="text-sm">Latest</span>
+              <Clock className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="text-xs md:text-sm">Latest</span>
             </TabsTrigger>
           </TabsList>
 
           {user && (
             <TabsContent value="for-you" className="mt-4 space-y-4">
               {loading && page === 1 ? (
-                <div className="flex gap-4 items-start">
-                  {Array(3).fill(0).map((_, colIndex) => (
-                    <div key={colIndex} className="flex-1 space-y-4">
-                      <EventCardSkeleton />
-                    </div>
-                  ))}
-                </div>
+                <SkeletonGrid isMobile={isMobile} />
               ) : events.length > 0 ? (
                 <>
                   <MasonryLayout events={events} />
@@ -124,13 +130,7 @@ export default function DiscoveryPage() {
 
           <TabsContent value="popular" className="mt-4 space-y-4">
             {loading && page === 1 ? (
-              <div className="flex gap-4 items-start">
-                {Array(3).fill(0).map((_, colIndex) => (
-                  <div key={colIndex} className="flex-1 space-y-4">
-                    <EventCardSkeleton />
-                  </div>
-                ))}
-              </div>
+              <SkeletonGrid isMobile={isMobile} />
             ) : events.length > 0 ? (
               <>
                 <MasonryLayout events={events} />
@@ -145,13 +145,7 @@ export default function DiscoveryPage() {
 
           <TabsContent value="latest" className="mt-4 space-y-4">
             {loading && page === 1 ? (
-              <div className="flex gap-4 items-start">
-                {Array(3).fill(0).map((_, colIndex) => (
-                  <div key={colIndex} className="flex-1 space-y-4">
-                    <EventCardSkeleton />
-                  </div>
-                ))}
-              </div>
+              <SkeletonGrid isMobile={isMobile} />
             ) : events.length > 0 ? (
               <>
                 <MasonryLayout events={events} />
@@ -170,7 +164,7 @@ export default function DiscoveryPage() {
 }
 
 const EventCardSkeleton = () => (
-  <div className="w-full p-4 rounded space-y-3">
+  <div className="w-full p-3 md:p-4 rounded space-y-3">
     <Skeleton className="h-5 w-3/4 bg-gray-800" />
     <Skeleton className="h-3 w-1/4 bg-gray-800" />
     <Skeleton className="h-3 w-1/2 bg-gray-800" />
@@ -179,5 +173,17 @@ const EventCardSkeleton = () => (
       <Skeleton className="h-3 w-1/4 bg-gray-800" />
       <Skeleton className="h-6 w-20 bg-gray-800" />
     </div>
+  </div>
+);
+
+const SkeletonGrid = ({ isMobile }: { isMobile: boolean }) => (
+  <div className="flex gap-3 md:gap-4 items-start">
+    {Array(isMobile ? 2 : 3).fill(0).map((_, colIndex) => (
+      <div key={colIndex} className="flex-1 space-y-3 md:space-y-4">
+        <EventCardSkeleton />
+        <EventCardSkeleton />
+        <EventCardSkeleton />
+      </div>
+    ))}
   </div>
 ); 

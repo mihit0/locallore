@@ -75,15 +75,26 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
       if (eventId && data) {
         const event = data.find(e => e.id === eventId)
         if (event) {
-          setSelectedEvent(event)
-          setShowEventDetails(true)
-          // Center map on the event location
+          // Center map on the event location first
           if (map.current) {
             map.current.flyTo({
               center: [event.longitude, event.latitude],
               zoom: 17,
               essential: true
             })
+            
+            // After map flies to location, show popup for the specific event
+            setTimeout(() => {
+              const markers = document.getElementsByClassName('custom-marker')
+              for (let i = 0; i < markers.length; i++) {
+                const markerEl = markers[i] as HTMLElement
+                if (markerEl.getAttribute('data-event-id') === event.id) {
+                  // Trigger click on the marker to show popup
+                  markerEl.click()
+                  break
+                }
+              }
+            }, 800)
           }
         }
       }
@@ -166,6 +177,9 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
         .setLngLat([event.longitude, event.latitude])
         .setPopup(popup)
         .addTo(map.current!)
+      
+      // Store event ID on marker element for reference
+      markerEl.setAttribute('data-event-id', event.id)
     })
 
     // Add event listener for view details button clicks

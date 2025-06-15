@@ -11,24 +11,37 @@ interface MasonryLayoutProps {
 export function MasonryLayout({ events }: MasonryLayoutProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [columns, setColumns] = useState<Event[][]>([[], [], []]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Reset columns
-    const newColumns: Event[][] = [[], [], []];
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    // Determine number of columns based on screen size
+    const numColumns = isMobile ? 2 : 3;
+    const newColumns: Event[][] = Array(numColumns).fill(null).map(() => []);
     
     // Distribute events across columns
     events.forEach((event, index) => {
-      const columnIndex = index % 3;
+      const columnIndex = index % numColumns;
       newColumns[columnIndex].push(event);
     });
     
     setColumns(newColumns);
-  }, [events]);
+  }, [events, isMobile]);
 
   return (
-    <div ref={containerRef} className="flex gap-4 items-start">
+    <div ref={containerRef} className="flex gap-3 md:gap-4 items-start">
       {columns.map((columnEvents, columnIndex) => (
-        <div key={columnIndex} className="flex-1 space-y-4">
+        <div key={columnIndex} className="flex-1 space-y-3 md:space-y-4">
           {columnEvents.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
