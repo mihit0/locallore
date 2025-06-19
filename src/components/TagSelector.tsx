@@ -125,7 +125,7 @@ export function TagSelector({ selectedTags, onTagsChange, category, maxTags = 6 
       {/* Suggested Tags */}
       <div className="space-y-2">
         <p className="text-sm font-medium text-white">Suggested Tags</p>
-        <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+        <div className="flex flex-wrap gap-1 sm:gap-2 max-h-32 overflow-y-auto">
           {getSuggestedTags().map((tag) => (
             <Button
               key={tag}
@@ -133,10 +133,10 @@ export function TagSelector({ selectedTags, onTagsChange, category, maxTags = 6 
               variant="ghost"
               size="sm"
               disabled={selectedTags.length >= maxTags}
-              className="h-7 px-2 text-xs text-gray-300 hover:bg-gray-800 border border-gray-700 hover:border-gray-600"
+              className="h-6 sm:h-7 px-1 sm:px-2 text-xs text-gray-300 hover:bg-gray-800 border border-gray-700 hover:border-gray-600 shrink-0"
             >
               <Plus className="w-3 h-3 mr-1" />
-              {tag}
+              <span className="truncate">{tag}</span>
             </Button>
           ))}
         </div>
@@ -156,12 +156,12 @@ export function TagSelector({ selectedTags, onTagsChange, category, maxTags = 6 
             Add Custom Tag
           </Button>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Input
               value={customTag}
               onChange={(e) => setCustomTag(e.target.value)}
               placeholder="Enter custom tag..."
-              className="bg-gray-900 border-gray-700 text-white placeholder-gray-500 text-sm"
+              className="bg-gray-900 border-gray-700 text-white placeholder-gray-500 text-sm flex-1"
               maxLength={20}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
@@ -170,25 +170,27 @@ export function TagSelector({ selectedTags, onTagsChange, category, maxTags = 6 
                 }
               }}
             />
-            <Button
-              onClick={handleCustomTag}
-              disabled={!customTag.trim()}
-              className="bg-[#B1810B] hover:bg-[#D4940D] text-black px-3"
-              size="sm"
-            >
-              Add
-            </Button>
-            <Button
-              onClick={() => {
-                setShowCustomInput(false);
-                setCustomTag('');
-              }}
-              variant="ghost"
-              className="text-gray-300 hover:bg-gray-800 px-3"
-              size="sm"
-            >
-              Cancel
-            </Button>
+            <div className="flex gap-2 sm:flex-shrink-0">
+              <Button
+                onClick={handleCustomTag}
+                disabled={!customTag.trim()}
+                className="bg-[#B1810B] hover:bg-[#D4940D] text-black px-3 flex-1 sm:flex-none"
+                size="sm"
+              >
+                Add
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowCustomInput(false);
+                  setCustomTag('');
+                }}
+                variant="ghost"
+                className="text-gray-300 hover:bg-gray-800 px-3 flex-1 sm:flex-none"
+                size="sm"
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         )}
       </div>

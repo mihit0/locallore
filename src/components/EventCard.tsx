@@ -394,7 +394,7 @@ export function EventCard({
     <>
       <div 
         ref={cardRef}
-        className="w-full p-4 rounded hover:bg-gray-900/30 transition-all duration-300 hover:scale-[1.02] transform"
+        className="w-full p-3 md:p-4 rounded hover:bg-gray-900/30 transition-all duration-300 hover:scale-[1.02] transform"
       >
         {event.image_url && (
           <div className="relative w-full h-40 mb-3 rounded overflow-hidden">
@@ -477,13 +477,13 @@ export function EventCard({
             )}
           </div>
           <div className="flex gap-1">
-            {/* Bookmark Button */}
+            {/* Bookmark Button - Hidden on mobile */}
             <Button
               onClick={handleBookmark}
               variant="ghost"
               size="sm"
               disabled={loading}
-              className={`p-2 transition-all duration-200 ${
+              className={`p-2 transition-all duration-200 hidden md:flex ${
                 isBookmarked 
                   ? 'text-[#B1810B] bg-[#B1810B]/20 hover:bg-[#B1810B]/30' 
                   : 'text-gray-400 hover:bg-gray-800 hover:text-[#B1810B]'
@@ -492,13 +492,13 @@ export function EventCard({
               <Bookmark className={`w-3 h-3 ${isBookmarked ? 'fill-current' : ''}`} />
             </Button>
 
-            {/* Attend Button */}
+            {/* Attend Button - Hidden on mobile */}
             <Button
               onClick={handleAttend}
               variant="ghost"
               size="sm"
               disabled={loading}
-              className={`p-2 transition-all duration-200 ${
+              className={`p-2 transition-all duration-200 hidden md:flex ${
                 isAttending 
                   ? 'text-green-400 bg-green-500/20 hover:bg-green-500/30' 
                   : 'text-gray-400 hover:bg-gray-800 hover:text-green-400'

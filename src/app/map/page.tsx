@@ -49,7 +49,7 @@ function MapPageContent() {
         <Link href="/">
           <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">← Back to Home</Button>
         </Link>
-        <h1 className="text-lg md:text-xl font-semibold text-white">Purdue Events Map</h1>
+        <h1 className="text-sm sm:text-lg md:text-xl font-semibold text-white">Purdue Events Map</h1>
         <Button 
           onClick={handleCreateEvent}
           variant="ghost"
@@ -78,7 +78,7 @@ export default function MapPage() {
           <Link href="/">
             <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">← Back to Home</Button>
           </Link>
-          <h1 className="text-lg md:text-xl font-semibold text-white">Purdue Events Map</h1>
+          <h1 className="text-sm sm:text-lg md:text-xl font-semibold text-white">Purdue Events Map</h1>
           <Button variant="ghost" className="text-gray-300 hover:bg-gray-800 hover:text-white">
             Loading...
           </Button>

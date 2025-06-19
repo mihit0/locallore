@@ -72,7 +72,7 @@ export default function DiscoveryPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-3 md:px-4 py-4 md:py-6 max-w-full overflow-x-hidden">
+      <div className="container mx-auto px-2 md:px-4 py-4 md:py-6 max-w-full overflow-x-hidden">
         <div className="text-center mb-4 md:mb-6 space-y-2">
           <h1 className="text-3xl md:text-4xl font-bold text-white">Discover Events</h1>
           <p className="text-xs md:text-sm text-gray-400">
@@ -178,9 +178,9 @@ const EventCardSkeleton = () => (
 );
 
 const SkeletonGrid = ({ isMobile }: { isMobile: boolean }) => (
-  <div className="flex gap-3 md:gap-4 items-start">
+  <div className="flex gap-2 md:gap-4 items-start">
     {Array(isMobile ? 2 : 3).fill(0).map((_, colIndex) => (
-      <div key={colIndex} className="flex-1 space-y-3 md:space-y-4">
+      <div key={colIndex} className="flex-1 space-y-2 md:space-y-4">
         <EventCardSkeleton />
         <EventCardSkeleton />
         <EventCardSkeleton />

@@ -39,9 +39,9 @@ export function MasonryLayout({ events }: MasonryLayoutProps) {
   }, [events, isMobile]);
 
   return (
-    <div ref={containerRef} className="flex gap-3 md:gap-4 items-start">
+    <div ref={containerRef} className="flex gap-2 md:gap-4 items-start">
       {columns.map((columnEvents, columnIndex) => (
-        <div key={columnIndex} className="flex-1 space-y-3 md:space-y-4">
+        <div key={columnIndex} className="flex-1 space-y-2 md:space-y-4">
           {columnEvents.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
