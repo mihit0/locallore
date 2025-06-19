@@ -15,8 +15,8 @@ import { useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth"
 import { toast } from "sonner"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { EventCategory, CreateEventModalProps } from "@/types"
+import { TagSelector } from "@/components/TagSelector"
+import { CreateEventModalProps } from "@/types"
 import { localToEastern, getCurrentEasternTime, getMaxEasternTime } from "@/lib/date"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { deleteEventImage } from "@/lib/storage"
@@ -27,12 +27,10 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
   const [description, setDescription] = useState("")
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
-  const [category, setCategory] = useState<EventCategory>("Other")
+  const [tags, setTags] = useState<string[]>([])
   const [contactInfo, setContactInfo] = useState("")
   const [imageUrl, setImageUrl] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const categories: EventCategory[] = ['Food', 'Study', 'Club', 'Social', 'Academic', 'Other']
 
   const handleSubmit = async () => {
     if (!user || !coordinates) return
@@ -47,7 +45,8 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
         longitude: coordinates[0],
         start_time: localToEastern(startTime),
         end_time: localToEastern(endTime),
-        category,
+        category: tags.length > 0 ? tags[0] : 'Other',
+        tags: tags,
         contact_info: contactInfo.trim() || null,
         image_url: imageUrl.trim() || null,
         view_count: 0
@@ -73,7 +72,7 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
     setDescription("")
     setStartTime("")
     setEndTime("")
-    setCategory("Other")
+    setTags([])
     setContactInfo("")
     setImageUrl("")
   }
@@ -172,19 +171,11 @@ export function CreateEventModal({ isOpen, onClose, coordinates, onSuccess }: Cr
           </div>
 
           <div>
-            <label className="text-sm font-medium text-white mb-2 block">Category</label>
-            <Select value={category} onValueChange={(value) => setCategory(value as EventCategory)}>
-              <SelectTrigger className="bg-gray-900 border-white/20 text-white">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-white/20 text-white">
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="text-white hover:bg-gray-800">
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <label className="text-sm font-medium text-white mb-2 block">Event Tags</label>
+            <TagSelector
+              selectedTags={tags}
+              onTagsChange={setTags}
+            />
           </div>
 
           <div>

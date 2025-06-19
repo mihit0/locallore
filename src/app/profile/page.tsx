@@ -18,6 +18,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { UserPreferences } from '@/components/UserPreferences'
+import { BookmarkedEvents } from '@/components/BookmarkedEvents'
 
 interface UserProfile {
   username: string
@@ -26,10 +28,11 @@ interface UserProfile {
   graduation_year?: number
   created_at: string
   is_verified: boolean
+  preferences?: string[]
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [events, setEvents] = useState<Event[]>([])
@@ -42,12 +45,18 @@ export default function ProfilePage() {
     display_name: '',
     graduation_year: ''
   })
+  const [userPreferences, setUserPreferences] = useState<string[]>([]);
 
   // Add graduation year options
   const currentYear = new Date().getFullYear()
   const graduationYears = Array.from({length: 11}, (_, i) => currentYear + i)
 
   useEffect(() => {
+    // Wait for auth loading to complete before checking user
+    if (authLoading) {
+      return
+    }
+    
     if (!user) {
       console.log('No user found, redirecting to login')
       router.push('/auth/login')
@@ -87,7 +96,7 @@ export default function ProfilePage() {
         // Load user profile
         const { data: profileData, error: profileError } = await supabase
           .from('users')
-          .select('username, display_name, purdue_email, graduation_year, created_at, is_verified')
+          .select('username, display_name, purdue_email, graduation_year, created_at, is_verified, preferences')
           .eq('id', userId)
           .single()
 
@@ -104,6 +113,7 @@ export default function ProfilePage() {
         if (profileData) {
           console.log('Profile data loaded:', profileData)
           setProfile(profileData)
+          setUserPreferences(profileData.preferences || [])
         } else {
           console.error('No profile data found for user:', userId)
         }
@@ -136,7 +146,7 @@ export default function ProfilePage() {
     }
 
     loadProfile()
-  }, [user, router])
+  }, [user, router, authLoading])
 
   const handleLogout = async () => {
     try {
@@ -238,7 +248,8 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) {
+  // Show loading while auth is being checked or profile is being loaded
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-black p-4 flex items-center justify-center">
         <div className="text-lg text-white font-medium">Loading your profile...</div>
@@ -460,6 +471,22 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* User Preferences Section */}
+        <div className="space-y-6">
+          <UserPreferences
+            userId={user?.id || ''}
+            initialPreferences={userPreferences}
+            onPreferencesUpdate={setUserPreferences}
+          />
+        </div>
+
+        {/* Bookmarked Events Section */}
+        <div className="space-y-6">
+          <BookmarkedEvents userId={user?.id || ''} />
+        </div>
+
+
 
         {activeEvents.length > 0 && (
           <div className="space-y-4">

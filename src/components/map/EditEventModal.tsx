@@ -15,8 +15,8 @@ import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth"
 import { toast } from "sonner"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { EventCategory, EditEventModalProps } from "@/types"
+import { TagSelector } from "@/components/TagSelector"
+import { EditEventModalProps } from "@/types"
 import { localToEastern, easternToLocal, getCurrentEasternTime, getMaxEasternTime } from "@/lib/date"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { deleteEventImage } from "@/lib/storage"
@@ -27,13 +27,11 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
   const [description, setDescription] = useState("")
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
-  const [category, setCategory] = useState<EventCategory>("Other")
+  const [tags, setTags] = useState<string[]>([])
   const [contactInfo, setContactInfo] = useState("")
   const [imageUrl, setImageUrl] = useState("")
   const [originalImageUrl, setOriginalImageUrl] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const categories: EventCategory[] = ['Food', 'Study', 'Club', 'Social', 'Academic', 'Other']
 
   useEffect(() => {
     if (event) {
@@ -41,7 +39,7 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
       setDescription(event.description)
       setStartTime(easternToLocal(event.start_time))
       setEndTime(easternToLocal(event.end_time))
-      setCategory(event.category)
+      setTags(event.tags || [])
       setContactInfo(event.contact_info || "")
       setImageUrl(event.image_url || "")
       setOriginalImageUrl(event.image_url || "")
@@ -60,7 +58,8 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
           description: description.trim(),
           start_time: localToEastern(startTime),
           end_time: localToEastern(endTime),
-          category,
+          category: tags.length > 0 ? tags[0] : 'Other',
+          tags: tags,
           contact_info: contactInfo.trim() || null,
           image_url: imageUrl.trim() || null,
         })
@@ -106,6 +105,18 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleImageUpload = (url: string) => {
+    setImageUrl(url)
+  }
+
+  const handleImageRemove = () => {
+    if (originalImageUrl && originalImageUrl !== imageUrl) {
+      // Delete the new image if it was uploaded but user removed it
+      deleteEventImage(imageUrl)
+    }
+    setImageUrl("")
   }
 
   const isValidForm = () => {
@@ -196,19 +207,11 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
           </div>
 
           <div>
-            <label className="text-sm font-medium text-white mb-2 block">Category</label>
-            <Select value={category} onValueChange={(value) => setCategory(value as EventCategory)}>
-              <SelectTrigger className="bg-gray-900 border-white/20 text-white">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-900 border-white/20 text-white">
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat} className="text-white hover:bg-gray-800">
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <label className="text-sm font-medium text-white mb-2 block">Event Tags</label>
+            <TagSelector
+              selectedTags={tags}
+              onTagsChange={setTags}
+            />
           </div>
 
           <div>
@@ -223,29 +226,30 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
           <div>
             <label className="text-sm font-medium text-white mb-2 block">Event Image (optional)</label>
             <ImageUpload
-              onImageUpload={setImageUrl}
-              onImageRemove={() => setImageUrl("")}
+              onImageUpload={handleImageUpload}
+              onImageRemove={handleImageRemove}
               currentImageUrl={imageUrl}
             />
           </div>
         </div>
-        <DialogFooter className="flex flex-col sm:flex-row justify-between gap-3 pt-4">
-          <Button 
-            variant="ghost" 
+        
+        <DialogFooter className="flex justify-between gap-4">
+          <Button
+            variant="outline"
             onClick={handleDelete}
             disabled={isSubmitting}
-            className="text-red-400 hover:bg-red-500/20 hover:text-red-300 w-full sm:w-auto order-2 sm:order-1"
+            className="bg-red-900/20 border-red-500/30 text-red-400 hover:bg-red-900/40 hover:text-red-300"
           >
             Delete Event
           </Button>
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto order-1 sm:order-2">
-            <Button variant="ghost" onClick={onClose} className="text-gray-300 hover:bg-gray-800 hover:text-white w-full sm:w-auto">
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose} disabled={isSubmitting} className="bg-gray-900 border-white/20 text-white hover:bg-gray-800">
               Cancel
             </Button>
             <Button 
-              onClick={handleSubmit}
+              onClick={handleSubmit} 
               disabled={!isValidForm() || isSubmitting}
-              className="bg-[#B1810B] text-white hover:bg-[#8B6B09] disabled:bg-gray-700 disabled:text-gray-400 w-full sm:w-auto"
+              className="bg-[#B1810B] hover:bg-[#B1810B]/80 text-black font-medium"
             >
               {isSubmitting ? "Updating..." : "Update Event"}
             </Button>

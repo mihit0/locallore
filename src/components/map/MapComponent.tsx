@@ -6,8 +6,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/lib/auth'
 // import { Button } from '@/components/ui/button'
-import { Event } from '@/types/event'
-import { EventCategory } from '@/types'
+import { Event, TAG_CATEGORIES, TAG_COLORS } from '@/types/event'
 import { CreateEventModal } from './CreateEventModal'
 import { EditEventModal } from './EditEventModal'
 import { formatEasternDateTime } from '@/lib/date'
@@ -20,29 +19,38 @@ mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!
 interface MapComponentProps {
   isCreatingEvent: boolean
   onCancelEventCreation: () => void
+  highlightedEventId?: string | null
 }
 
-// Category color mapping
-const categoryColors: Record<EventCategory, string> = {
-  Food: '#EF4444', // Red
-  Study: '#3B82F6', // Blue
-  Club: '#8B5CF6', // Purple
-  Social: '#10B981', // Green
-  Academic: '#F59E0B', // Orange
-  Other: '#6B7280', // Gray
-}
+// Get tag color helper function
+const getTagColor = (tag: string): string => {
+  for (const [category, tags] of Object.entries(TAG_CATEGORIES)) {
+    if ((tags as readonly string[]).includes(tag)) {
+      return TAG_COLORS[category as keyof typeof TAG_COLORS];
+    }
+  }
+  return TAG_COLORS.General;
+};
 
 // Category icons (emoji for now, can be replaced with actual icons)
-const categoryIcons = {
-  Food: '🍕',
-  Study: '📚',
-  Club: '🎯',
-  Social: '🎉',
-  Academic: '🎓',
-  Other: '⭐'
-} as const
+const getCategoryIcon = (category: string): string => {
+  const iconMap: Record<string, string> = {
+    Food: '🍕',
+    Study: '📚',
+    Club: '🎯',
+    Social: '🎉',
+    Academic: '🎓',
+    Sports: '⚽',
+    Music: '🎵',
+    Tech: '💻',
+    Arts: '🎨',
+    Career: '💼',
+    Other: '⭐'
+  };
+  return iconMap[category] || '⭐';
+};
 
-export default function MapComponent({ isCreatingEvent, onCancelEventCreation }: MapComponentProps) {
+export default function MapComponent({ isCreatingEvent, onCancelEventCreation, highlightedEventId }: MapComponentProps) {
   const { user } = useAuth()
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
@@ -150,7 +158,7 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
         .setHTML(`
           <div class="p-4 bg-black text-white rounded max-w-xs">
             <div class="flex items-center gap-2 mb-3">
-              <span>${categoryIcons[event.category]}</span>
+              <span>${getCategoryIcon(event.category)}</span>
               <h3 class="font-semibold text-white">${event.title}</h3>
             </div>
             <p class="text-sm mb-3 text-gray-300">${event.description.substring(0, 100)}${event.description.length > 100 ? '...' : ''}</p>
@@ -175,11 +183,11 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation }:
       markerEl.style.width = '24px'
       markerEl.style.height = '24px'
       markerEl.style.borderRadius = '50%'
-      markerEl.style.backgroundColor = categoryColors[event.category]
+      markerEl.style.backgroundColor = getTagColor(event.category)
       markerEl.style.border = '2px solid white'
       markerEl.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)'
       markerEl.style.cursor = 'pointer'
-      markerEl.innerHTML = `<span style="font-size: 14px; line-height: 20px;">${categoryIcons[event.category]}</span>`
+      markerEl.innerHTML = `<span style="font-size: 14px; line-height: 20px;">${getCategoryIcon(event.category)}</span>`
 
       const marker = new mapboxgl.Marker(markerEl)
         .setLngLat([event.longitude, event.latitude])

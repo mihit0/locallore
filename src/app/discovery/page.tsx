@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/auth";
 import { EventCard } from "@/components/EventCard";
 import { MasonryLayout } from "@/components/MasonryLayout";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -159,6 +159,7 @@ export default function DiscoveryPage() {
           </TabsContent>
         </Tabs>
       </div>
+
     </div>
   );
 }

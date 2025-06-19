@@ -8,33 +8,37 @@ export interface User {
     is_verified: boolean
   }
   
-  export type EventCategory = 'Food' | 'Study' | 'Club' | 'Social' | 'Academic' | 'Other'
-  
   export interface Event {
-    id: string
-    user_id: string
-    title: string
-    description: string
-    latitude: number
-    longitude: number
-    start_time: string
-    end_time: string
-    category: EventCategory
-    contact_info?: string | null
-    image_url?: string | null
-    view_count: number
-    created_at: string
-  }
+  id: string
+  user_id: string
+  title: string
+  description: string
+  latitude: number
+  longitude: number
+  start_time: string
+  end_time: string
+  category: string
+  tags: string[]
+  contact_info?: string | null
+  image_url?: string | null
+  view_count: number
+  created_at: string
+  creator?: {
+    display_name: string;
+    graduation_year?: number;
+  };
+}
   
   export interface EventFormData {
-    title: string
-    description: string
-    start_time: string
-    end_time: string
-    category: EventCategory
-    contact_info?: string
-    image_url?: string
-  }
+  title: string
+  description: string
+  start_time: string
+  end_time: string
+  category: string
+  tags: string[]
+  contact_info?: string
+  image_url?: string
+}
 
   export interface CreateEventModalProps {
     isOpen: boolean

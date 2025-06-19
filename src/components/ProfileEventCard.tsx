@@ -2,21 +2,23 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { Event } from '@/types/event';
+import { Event, TAG_CATEGORIES, TAG_COLORS } from '@/types/event';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, MapPin, Edit } from 'lucide-react';
+import { Eye, MapPin, Edit, UserCheck } from 'lucide-react';
 import { EventDetailsSheet } from '@/components/map/EventDetailsSheet';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
-const CATEGORY_COLORS = {
-  Food: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  Study: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  Club: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  Social: 'bg-green-500/20 text-green-400 border-green-500/30',
-  Academic: 'bg-red-500/20 text-red-400 border-red-500/30',
-  Other: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
-} as const;
+// Get tag color helper function
+const getTagColor = (tag: string): string => {
+  for (const [category, tags] of Object.entries(TAG_CATEGORIES)) {
+    if ((tags as readonly string[]).includes(tag)) {
+      return TAG_COLORS[category as keyof typeof TAG_COLORS];
+    }
+  }
+  return TAG_COLORS.General;
+};
 
 interface ProfileEventCardProps {
   event: Event;
@@ -27,6 +29,7 @@ interface ProfileEventCardProps {
 export function ProfileEventCard({ event, showMapButton = false, onEdit }: ProfileEventCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [attendeeCount, setAttendeeCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,8 +54,27 @@ export function ProfileEventCard({ event, showMapButton = false, onEdit }: Profi
       observer.observe(cardRef.current);
     }
 
+    // Load attendance count for this event (creator view)
+    loadAttendeeCount();
+
     return () => observer.disconnect();
   }, [event.id]);
+
+  const loadAttendeeCount = async () => {
+    try {
+      const { data, error } = await supabase.rpc('get_event_attendance_count', {
+        event_uuid: event.id
+      });
+      
+      if (error) {
+        setAttendeeCount(0);
+      } else {
+        setAttendeeCount(data || 0);
+      }
+    } catch (error) {
+      setAttendeeCount(0);
+    }
+  };
 
   const handleClick = async () => {
     try {
@@ -124,7 +146,15 @@ export function ProfileEventCard({ event, showMapButton = false, onEdit }: Profi
               <Edit className="w-3 h-3" />
             </Button>
           </div>
-          <Badge variant="outline" className={`${CATEGORY_COLORS[event.category]} backdrop-blur-sm text-xs border-0 flex-shrink-0 ml-2`}>
+          <Badge 
+            variant="outline" 
+            className="backdrop-blur-sm text-xs border-0 flex-shrink-0 ml-2"
+            style={{
+              backgroundColor: `${getTagColor(event.category)}20`,
+              color: getTagColor(event.category),
+              borderColor: `${getTagColor(event.category)}30`
+            }}
+          >
             {event.category}
           </Badge>
         </div>
@@ -142,14 +172,46 @@ export function ProfileEventCard({ event, showMapButton = false, onEdit }: Profi
           )}
         </div>
 
-        <p className="text-gray-300 line-clamp-2 mb-4 text-xs">{event.description}</p>
+        <p className="text-gray-300 line-clamp-2 mb-3 text-xs">{event.description}</p>
+        
+        {/* Tags section */}
+        {event.tags && event.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-4">
+            {event.tags.slice(0, 4).map((tag) => (
+              <Badge
+                key={tag}
+                variant="outline"
+                className="text-xs border-0 h-5 px-2"
+                style={{
+                  backgroundColor: `${getTagColor(tag)}15`,
+                  color: getTagColor(tag),
+                  borderColor: `${getTagColor(tag)}20`
+                }}
+              >
+                {tag}
+              </Badge>
+            ))}
+            {event.tags.length > 4 && (
+              <Badge
+                variant="outline"
+                className="text-xs border-0 h-5 px-2 bg-gray-500/10 text-gray-400 border-gray-500/20"
+              >
+                +{event.tags.length - 4}
+              </Badge>
+            )}
+          </div>
+        )}
 
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <Eye className="w-3 h-3" />
-            <span>{event.view_count}</span>
-            {event.creator && (
-              <span>• by {event.creator.display_name} '{event.creator.graduation_year?.toString().slice(-2)}</span>
+            <span>{event.view_count} views</span>
+            {attendeeCount > 0 && (
+              <>
+                <span>•</span>
+                <UserCheck className="w-3 h-3" />
+                <span>{attendeeCount} attending</span>
+              </>
             )}
           </div>
           <div className="flex gap-2">

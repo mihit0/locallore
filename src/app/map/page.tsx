@@ -3,8 +3,8 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 
 // Dynamically import MapComponent with SSR disabled to prevent window access issues
@@ -23,7 +23,17 @@ const MapComponent = dynamic(
 export default function MapPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isCreatingEvent, setIsCreatingEvent] = useState(false)
+  const [highlightedEventId, setHighlightedEventId] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Check if there's an event parameter in the URL (for shared links)
+    const eventId = searchParams.get('event')
+    if (eventId) {
+      setHighlightedEventId(eventId)
+    }
+  }, [searchParams])
 
   const handleCreateEvent = () => {
     if (!user) {
@@ -53,6 +63,7 @@ export default function MapPage() {
         <MapComponent 
           isCreatingEvent={isCreatingEvent}
           onCancelEventCreation={() => setIsCreatingEvent(false)}
+          highlightedEventId={highlightedEventId}
         />
       </div>
     </div>
