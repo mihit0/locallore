@@ -397,7 +397,7 @@ export function EventCard({
         className="w-full p-3 md:p-4 rounded hover:bg-gray-900/30 transition-all duration-300 hover:scale-[1.02] transform"
       >
         {event.image_url && (
-          <div className="relative w-full h-40 mb-3 rounded overflow-hidden">
+          <div className="relative w-full h-32 md:h-40 mb-3 rounded overflow-hidden">
             <img 
               src={event.image_url} 
               alt={event.title}
@@ -406,18 +406,7 @@ export function EventCard({
           </div>
         )}
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold line-clamp-2 text-white">{event.title}</h3>
-          <Badge 
-            variant="outline" 
-            className={`${getTagBadgeClasses(event.category)} backdrop-blur-sm flex-shrink-0`}
-            style={{
-              backgroundColor: `${getTagColor(event.category)}20`,
-              color: getTagColor(event.category),
-              borderColor: `${getTagColor(event.category)}30`
-            }}
-          >
-            {event.category}
-          </Badge>
+          <h3 className="text-lg font-semibold line-clamp-2 text-white flex-1">{event.title}</h3>
         </div>
 
         <div className="text-xs text-gray-400 mb-3 space-y-1">
@@ -461,22 +450,12 @@ export function EventCard({
           </div>
         )}
 
-        <div className="flex justify-between items-center">
+        <div className="flex justify-center items-center">
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <Eye className="w-3 h-3" />
             <span>{event.view_count}</span>
-            {event.creator && (
-              <>
-                <span>•</span>
-                <span className="hidden md:inline"> by </span>
-                <span>{event.creator.display_name}</span>
-                <span className="hidden md:inline">
-                  {event.creator.graduation_year && ` '${event.creator.graduation_year.toString().slice(-2)}`}
-                </span>
-              </>
-            )}
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 ml-auto">
             {/* Bookmark Button - Hidden on mobile */}
             <Button
               onClick={handleBookmark}

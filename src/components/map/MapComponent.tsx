@@ -341,8 +341,10 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation, h
     <>
       <div 
         ref={mapContainer} 
-        className="w-full h-full"
-        style={{ minHeight: '100%' }}
+        className="w-full h-full absolute inset-0"
+        style={{ 
+          touchAction: 'pan-x pan-y'
+        }}
       />
       {isCreatingEvent && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black text-white px-4 py-2 rounded-full border border-white/20 backdrop-blur-sm">

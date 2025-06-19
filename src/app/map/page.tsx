@@ -44,8 +44,8 @@ function MapPageContent() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center">
+    <div className="h-screen flex flex-col fixed inset-0 overflow-hidden" data-map-page>
+      <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center flex-shrink-0 z-10">
         <Link href="/">
           <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">← Back to Home</Button>
         </Link>
@@ -59,7 +59,7 @@ function MapPageContent() {
         </Button>
       </div>
       
-      <div className="flex-1 relative w-full h-[calc(100vh-4rem)]">
+      <div className="flex-1 relative w-full overflow-hidden">
         <MapComponent 
           isCreatingEvent={isCreatingEvent}
           onCancelEventCreation={() => setIsCreatingEvent(false)}
@@ -73,8 +73,8 @@ function MapPageContent() {
 export default function MapPage() {
   return (
     <Suspense fallback={
-      <div className="h-screen flex flex-col">
-        <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center">
+      <div className="h-screen flex flex-col fixed inset-0 overflow-hidden" data-map-page>
+        <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center flex-shrink-0 z-10">
           <Link href="/">
             <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">← Back to Home</Button>
           </Link>
@@ -83,7 +83,7 @@ export default function MapPage() {
             Loading...
           </Button>
         </div>
-        <div className="flex-1 flex items-center justify-center bg-black">
+        <div className="flex-1 flex items-center justify-center bg-black overflow-hidden">
           <div className="text-white">Loading map...</div>
         </div>
       </div>
