@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import dynamic from 'next/dynamic'
 
 // Dynamically import MapComponent with SSR disabled to prevent window access issues
@@ -20,7 +20,7 @@ const MapComponent = dynamic(
   }
 )
 
-export default function MapPage() {
+function MapPageContent() {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -67,5 +67,28 @@ export default function MapPage() {
         />
       </div>
     </div>
+  )
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex flex-col">
+        <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center">
+          <Link href="/">
+            <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">← Back to Home</Button>
+          </Link>
+          <h1 className="text-lg md:text-xl font-semibold text-white">Purdue Events Map</h1>
+          <Button variant="ghost" className="text-gray-300 hover:bg-gray-800 hover:text-white">
+            Loading...
+          </Button>
+        </div>
+        <div className="flex-1 flex items-center justify-center bg-black">
+          <div className="text-white">Loading map...</div>
+        </div>
+      </div>
+    }>
+      <MapPageContent />
+    </Suspense>
   )
 }
