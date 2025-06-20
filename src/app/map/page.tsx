@@ -46,19 +46,24 @@ function MapPageContent() {
 
   return (
     <div className="h-screen flex flex-col fixed inset-0 overflow-hidden" data-map-page>
-      <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center flex-shrink-0 z-10 relative">
-        <Link href="/">
+      <div className="bg-black border-b border-white/20 p-3 sm:p-4 flex items-center flex-shrink-0 z-10 gap-2 sm:gap-4">
+        <Link href="/" className="flex-shrink-0">
           <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-800 p-2">
             <Home className="w-4 h-4" />
           </Button>
         </Link>
-        <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xs sm:text-sm md:text-base font-semibold text-white">Purdue Events Map</h1>
+        
+        <h1 className="text-xs sm:text-sm md:text-base font-semibold text-white truncate flex-1 sm:flex-none sm:absolute sm:left-1/2 sm:transform sm:-translate-x-1/2 min-w-0">
+          Purdue Events Map
+        </h1>
+        
         <Button 
           onClick={handleCreateEvent}
           variant="ghost"
-          className={isCreatingEvent ? "text-gray-300 hover:bg-gray-800 hover:text-white" : "text-[#B1810B] hover:bg-[#B1810B]/20 hover:text-[#D4940D]"}
+          size="sm"
+          className={`text-xs sm:text-sm flex-shrink-0 ${isCreatingEvent ? "text-gray-300 hover:bg-gray-800 hover:text-white" : "text-[#B1810B] hover:bg-[#B1810B]/20 hover:text-[#D4940D]"}`}
         >
-          {isCreatingEvent ? "Cancel" : user ? "Create Event" : "Sign in to Create Event"}
+          {isCreatingEvent ? "Cancel" : user ? "Create Event" : "Sign in"}
         </Button>
       </div>
       
@@ -77,14 +82,18 @@ export default function MapPage() {
   return (
     <Suspense fallback={
       <div className="h-screen flex flex-col fixed inset-0 overflow-hidden" data-map-page>
-        <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center flex-shrink-0 z-10 relative">
-          <Link href="/">
+        <div className="bg-black border-b border-white/20 p-3 sm:p-4 flex items-center flex-shrink-0 z-10 gap-2 sm:gap-4">
+          <Link href="/" className="flex-shrink-0">
             <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-800 p-2">
               <Home className="w-4 h-4" />
             </Button>
           </Link>
-          <h1 className="absolute left-1/2 transform -translate-x-1/2 text-xs sm:text-sm md:text-base font-semibold text-white">Purdue Events Map</h1>
-          <Button variant="ghost" className="text-gray-300 hover:bg-gray-800 hover:text-white">
+          
+          <h1 className="text-xs sm:text-sm md:text-base font-semibold text-white truncate flex-1 sm:flex-none sm:absolute sm:left-1/2 sm:transform sm:-translate-x-1/2 min-w-0">
+            Purdue Events Map
+          </h1>
+          
+          <Button variant="ghost" size="sm" className="text-xs sm:text-sm text-gray-300 hover:bg-gray-800 hover:text-white flex-shrink-0">
             Loading...
           </Button>
         </div>
