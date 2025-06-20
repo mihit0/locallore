@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { Event } from '@/types/event';
 import { EventCard } from '@/components/EventCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bookmark, Calendar } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 
@@ -15,14 +17,32 @@ interface BookmarkedEventsProps {
 export function BookmarkedEvents({ userId }: BookmarkedEventsProps) {
   const [bookmarkedEvents, setBookmarkedEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const { user } = useAuth();
+  
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
+
+  const EVENTS_PER_PAGE = 10;
 
   useEffect(() => {
     if (userId || user?.id) {
-      loadBookmarkedEvents();
+      loadBookmarkedEvents(1, true);
     }
   }, [userId, user]);
+
+  // Load more when user scrolls to bottom
+  useEffect(() => {
+    if (inView && !loading && !loadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadBookmarkedEvents(nextPage, false);
+    }
+  }, [inView, loading, loadingMore, hasMore, page]);
 
   // Set up real-time subscription for bookmarks
   useEffect(() => {
@@ -38,7 +58,10 @@ export function BookmarkedEvents({ userId }: BookmarkedEventsProps) {
         filter: `user_id=eq.${targetUserId}`
       }, (payload) => {
         console.log('Bookmark interaction changed:', payload);
-        loadBookmarkedEvents(); // Reload when bookmark interactions change
+        // Reset and reload from first page when bookmarks change
+        setPage(1);
+        setHasMore(true);
+        loadBookmarkedEvents(1, true);
       })
       .subscribe();
 
@@ -47,8 +70,12 @@ export function BookmarkedEvents({ userId }: BookmarkedEventsProps) {
     };
   }, [userId, user]);
 
-  const loadBookmarkedEvents = async () => {
-    setLoading(true);
+  const loadBookmarkedEvents = async (pageNum: number, reset: boolean = false) => {
+    if (reset) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
     setError(null);
     try {
       const targetUserId = userId || user?.id;
@@ -57,14 +84,17 @@ export function BookmarkedEvents({ userId }: BookmarkedEventsProps) {
         return;
       }
 
-      console.log('Loading bookmarked events for user:', targetUserId);
+      console.log(`Loading bookmarked events for user: ${targetUserId}, page: ${pageNum}`);
 
-      // Get bookmarked event IDs - Add better error handling
+      // Get bookmarked event IDs with pagination
+      const offset = (pageNum - 1) * EVENTS_PER_PAGE;
       const { data: bookmarkData, error: bookmarkError } = await supabase
         .from('user_event_interactions')
         .select('event_id')
         .eq('user_id', targetUserId)
-        .eq('interaction_type', 'bookmark');
+        .eq('interaction_type', 'bookmark')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + EVENTS_PER_PAGE - 1);
 
       if (bookmarkError) {
         console.error('Bookmark query error:', bookmarkError);
@@ -89,9 +119,15 @@ export function BookmarkedEvents({ userId }: BookmarkedEventsProps) {
       console.log('Found bookmarks:', bookmarkData);
 
       if (!bookmarkData || bookmarkData.length === 0) {
-        setBookmarkedEvents([]);
+        setHasMore(false);
+        if (reset) {
+          setBookmarkedEvents([]);
+        }
         return;
       }
+
+      // Check if we have more pages
+      setHasMore(bookmarkData.length === EVENTS_PER_PAGE);
 
       const eventIds = bookmarkData.map(b => b.event_id);
       console.log('Fetching events with IDs:', eventIds);
@@ -134,22 +170,32 @@ export function BookmarkedEvents({ userId }: BookmarkedEventsProps) {
             };
           })
         );
-        setBookmarkedEvents(eventsWithCreators);
+        if (reset) {
+          setBookmarkedEvents(eventsWithCreators);
+        } else {
+          setBookmarkedEvents(prev => [...prev, ...eventsWithCreators]);
+        }
       } else {
-        setBookmarkedEvents([]);
+        if (reset) {
+          setBookmarkedEvents([]);
+        }
+        setHasMore(false);
       }
     } catch (error) {
       console.error('Error loading bookmarked events:', error);
       setError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
   const handleBookmarkUpdate = () => {
-    // Reload bookmarked events when a bookmark is updated
+    // Reset and reload from first page when a bookmark is updated
     console.log('Bookmark updated, reloading...');
-    loadBookmarkedEvents();
+    setPage(1);
+    setHasMore(true);
+    loadBookmarkedEvents(1, true);
   };
 
   if (loading) {
@@ -188,7 +234,11 @@ export function BookmarkedEvents({ userId }: BookmarkedEventsProps) {
             <p className="text-red-400 mb-2">Error loading bookmarks</p>
             <p className="text-sm text-gray-500 mb-4">{error}</p>
             <button 
-              onClick={loadBookmarkedEvents}
+              onClick={() => {
+                setPage(1);
+                setHasMore(true);
+                loadBookmarkedEvents(1, true);
+              }}
               className="bg-[#B1810B] hover:bg-[#B1810B]/80 text-white px-4 py-2 rounded text-sm"
             >
               Retry
@@ -213,7 +263,7 @@ export function BookmarkedEvents({ userId }: BookmarkedEventsProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {bookmarkedEvents.length === 0 ? (
+        {bookmarkedEvents.length === 0 && !loading ? (
           <div className="text-center py-8">
             <Bookmark className="w-12 h-12 text-gray-600 mx-auto mb-4" />
             <p className="text-gray-400 mb-2">No bookmarked events yet</p>
@@ -231,6 +281,25 @@ export function BookmarkedEvents({ userId }: BookmarkedEventsProps) {
                 onBookmarkUpdate={handleBookmarkUpdate}
               />
             ))}
+            
+            {/* Infinite scroll trigger */}
+            {hasMore && (
+              <div ref={ref} className="py-4">
+                {loadingMore && (
+                  <div className="flex justify-center">
+                    <div className="animate-pulse">
+                      <div className="h-24 bg-gray-800 rounded w-full"></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {!hasMore && bookmarkedEvents.length > 0 && (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500">No more bookmarked events</p>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

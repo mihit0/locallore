@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { TAG_CATEGORIES, TAG_COLORS } from '@/types/event';
 
@@ -13,12 +13,22 @@ interface TagSelectorProps {
   onTagsChange: (tags: string[]) => void;
   category?: string;
   maxTags?: number;
+  suggestedTags?: string[];
+  tagConfidences?: Record<string, number>;
 }
 
-export function TagSelector({ selectedTags, onTagsChange, category, maxTags = 6 }: TagSelectorProps) {
+export function TagSelector({ 
+  selectedTags, 
+  onTagsChange, 
+  category, 
+  maxTags = 6, 
+  suggestedTags = [],
+  tagConfidences = {}
+}: TagSelectorProps) {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const [showAllTags, setShowAllTags] = useState(false);
 
   useEffect(() => {
     loadAvailableTags();
@@ -35,7 +45,14 @@ export function TagSelector({ selectedTags, onTagsChange, category, maxTags = 6 
       if (error) throw error;
       
       const tags = data?.map(item => item.tag) || [];
-      setAvailableTags(tags);
+      // Filter out any spam-related or inappropriate tags
+      const filteredTags = tags.filter(tag => 
+        !tag.toLowerCase().includes('spam') && 
+        !tag.toLowerCase().includes('detect') &&
+        !tag.toLowerCase().includes('ai') &&
+        !tag.toLowerCase().includes('quality')
+      );
+      setAvailableTags(filteredTags);
     } catch (error) {
       console.error('Error loading tags:', error);
       // Fallback to hardcoded tags if database fails
@@ -95,6 +112,10 @@ export function TagSelector({ selectedTags, onTagsChange, category, maxTags = 6 
     return [...suggested, ...remaining].slice(0, 12);
   };
 
+  const getAllAvailableTags = () => {
+    return availableTags.filter(tag => !selectedTags.includes(tag));
+  };
+
   return (
     <div className="space-y-3">
       {/* Selected Tags */}
@@ -122,11 +143,65 @@ export function TagSelector({ selectedTags, onTagsChange, category, maxTags = 6 
         </div>
       )}
 
-      {/* Suggested Tags */}
+      {/* AI-Generated Suggested Tags */}
+      {suggestedTags.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex flex-wrap gap-1 sm:gap-2">
+            {suggestedTags.filter(tag => !selectedTags.includes(tag)).map((tag) => {
+              const confidence = tagConfidences[tag] || 0;
+              return (
+                <Button
+                  key={`ai-suggested-${tag}`}
+                  onClick={() => addTag(tag)}
+                  variant="ghost"
+                  size="sm"
+                  disabled={selectedTags.length >= maxTags}
+                  className={`h-7 px-2 text-xs shrink-0 font-medium border transition-all ${
+                    confidence > 0.8 
+                      ? 'text-[#B1810B] bg-[#B1810B]/20 border-[#B1810B]/60 hover:bg-[#B1810B]/30 hover:border-[#B1810B]/80' 
+                      : confidence > 0.6 
+                      ? 'text-[#B1810B] bg-[#B1810B]/10 border-[#B1810B]/40 hover:bg-[#B1810B]/20 hover:border-[#B1810B]/60' 
+                      : 'text-[#B1810B] bg-[#B1810B]/5 border-[#B1810B]/20 hover:bg-[#B1810B]/10 hover:border-[#B1810B]/40'
+                  }`}
+                >
+                  <span className="truncate">{tag}</span>
+                  {confidence > 0.7 && (
+                    <span className="ml-1 text-xs opacity-75">
+                      {Math.round(confidence * 100)}%
+                    </span>
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Popular Tags */}
       <div className="space-y-2">
-        <p className="text-sm font-medium text-white">Suggested Tags</p>
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-white">Popular Tags</p>
+          <Button
+            onClick={() => setShowAllTags(!showAllTags)}
+            variant="ghost"
+            size="sm"
+            className="text-xs text-gray-400 hover:text-white h-auto p-1"
+          >
+            {showAllTags ? (
+              <>
+                <ChevronUp className="w-3 h-3 mr-1" />
+                Show Less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-3 h-3 mr-1" />
+                Show All Tags
+              </>
+            )}
+          </Button>
+        </div>
         <div className="flex flex-wrap gap-1 sm:gap-2 max-h-32 overflow-y-auto">
-          {getSuggestedTags().map((tag) => (
+          {(showAllTags ? getAllAvailableTags() : getSuggestedTags().filter(tag => !suggestedTags.includes(tag))).map((tag) => (
             <Button
               key={tag}
               onClick={() => addTag(tag)}
@@ -144,62 +219,44 @@ export function TagSelector({ selectedTags, onTagsChange, category, maxTags = 6 
 
       {/* Custom Tag Input */}
       <div className="space-y-2">
-        {!showCustomInput ? (
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-medium text-white">Custom Tags</p>
           <Button
-            onClick={() => setShowCustomInput(true)}
+            onClick={() => setShowCustomInput(!showCustomInput)}
             variant="ghost"
             size="sm"
-            disabled={selectedTags.length >= maxTags}
-            className="text-[#B1810B] hover:bg-[#B1810B]/10 text-xs"
+            className="text-xs text-gray-400 hover:text-white h-auto p-1"
           >
             <Plus className="w-3 h-3 mr-1" />
-            Add Custom Tag
+            Add Custom
           </Button>
-        ) : (
-          <div className="flex flex-col sm:flex-row gap-2">
+        </div>
+        
+        {showCustomInput && (
+          <div className="flex gap-2">
             <Input
+              placeholder="Enter custom tag..."
               value={customTag}
               onChange={(e) => setCustomTag(e.target.value)}
-              placeholder="Enter custom tag..."
-              className="bg-gray-900 border-gray-700 text-white placeholder-gray-500 text-sm flex-1"
-              maxLength={20}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
-                  e.preventDefault();
                   handleCustomTag();
                 }
               }}
+              className="flex-1 bg-gray-900 border-white/20 text-white placeholder:text-gray-400 text-xs"
+              maxLength={20}
             />
-            <div className="flex gap-2 sm:flex-shrink-0">
-              <Button
-                onClick={handleCustomTag}
-                disabled={!customTag.trim()}
-                className="bg-[#B1810B] hover:bg-[#D4940D] text-black px-3 flex-1 sm:flex-none"
-                size="sm"
-              >
-                Add
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowCustomInput(false);
-                  setCustomTag('');
-                }}
-                variant="ghost"
-                className="text-gray-300 hover:bg-gray-800 px-3 flex-1 sm:flex-none"
-                size="sm"
-              >
-                Cancel
-              </Button>
-            </div>
+            <Button
+              onClick={handleCustomTag}
+              disabled={!customTag.trim() || selectedTags.length >= maxTags}
+              size="sm"
+              className="bg-[#B1810B] text-white hover:bg-[#8B6B09] disabled:bg-gray-700 text-xs"
+            >
+              Add
+            </Button>
           </div>
         )}
       </div>
-
-      {selectedTags.length >= maxTags && (
-        <p className="text-xs text-amber-500">
-          Maximum of {maxTags} tags allowed. Remove a tag to add more.
-        </p>
-      )}
     </div>
   );
 } 

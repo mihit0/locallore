@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth"
 import { toast } from "sonner"
@@ -20,6 +20,7 @@ import { EditEventModalProps } from "@/types"
 import { localToEastern, easternToLocal, getCurrentEasternTime, getMaxEasternTime } from "@/lib/date"
 import { ImageUpload } from "@/components/ui/ImageUpload"
 import { deleteEventImage } from "@/lib/storage"
+import { useMLAutoTag, useMLQualityCheck } from "@/lib/hooks/useML"
 
 export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventModalProps) {
   const { user } = useAuth()
@@ -32,6 +33,15 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
   const [imageUrl, setImageUrl] = useState("")
   const [originalImageUrl, setOriginalImageUrl] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([])
+  const [tagConfidences, setTagConfidences] = useState<Record<string, number>>({})
+  const [apiCallCount, setApiCallCount] = useState(0)
+  const [lastInputTime, setLastInputTime] = useState(0)
+  
+  // ML hooks
+  const { autoTag, isLoading: isTagging, error: taggingError } = useMLAutoTag()
+  const { checkQuality } = useMLQualityCheck()
+  const autoTagTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (event) {
@@ -46,10 +56,66 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
     }
   }, [event])
 
+  // Auto-tagging with optimized calling strategy
+  const triggerAutoTag = useCallback(async () => {
+    if (title.trim() && description.trim() && apiCallCount < 2) {
+      console.log(`🏷️ API call ${apiCallCount + 1}/2 for:`, { title: title.trim(), description: description.trim() });
+      const result = await autoTag(title.trim(), description.trim())
+      setSuggestedTags(result.tags)
+      setTagConfidences(result.confidences)
+      setApiCallCount(prev => prev + 1)
+    }
+  }, [title, description, autoTag, apiCallCount])
+
+  useEffect(() => {
+    const currentTime = Date.now()
+    setLastInputTime(currentTime)
+    
+    if (autoTagTimeoutRef.current) {
+      clearTimeout(autoTagTimeoutRef.current)
+    }
+
+    if (title.trim() && description.trim()) {
+      console.log('🏷️ Setting 3-second auto-tag timeout...');
+      autoTagTimeoutRef.current = setTimeout(triggerAutoTag, 3000) // 3-second delay
+    } else {
+      // Clear suggestions and reset API call count when fields are empty
+      setSuggestedTags([])
+      setTagConfidences({})
+      setApiCallCount(0)
+    }
+
+    return () => {
+      if (autoTagTimeoutRef.current) {
+        clearTimeout(autoTagTimeoutRef.current)
+      }
+    }
+  }, [title, description, triggerAutoTag])
+
+  // Reset API call count when user makes changes after the initial calls
+  useEffect(() => {
+    if (apiCallCount >= 2) {
+      const checkForUserInput = () => {
+        const timeSinceLastInput = Date.now() - lastInputTime
+        if (timeSinceLastInput < 100) { // User made a change recently
+          console.log('🏷️ User made changes, resetting API call count');
+          setApiCallCount(0)
+        }
+      }
+      
+      const interval = setInterval(checkForUserInput, 500)
+      return () => clearInterval(interval)
+    }
+  }, [apiCallCount, lastInputTime])
+
   const handleSubmit = async () => {
     if (!user || !event) return
 
     setIsSubmitting(true)
+    
+    // Optional quality check for analytics (no blocking)
+    const qualityResult = await checkQuality(title.trim(), description.trim())
+    
     try {
       const { error } = await supabase
         .from('events')
@@ -67,6 +133,21 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
         .eq('user_id', user.id) // Ensure user owns the event
 
       if (error) throw error
+
+      // Store quality score in database if we have it
+      if (qualityResult) {
+        try {
+          await supabase.from('event_quality_scores').upsert({
+            event_id: event.id,
+            quality_score: qualityResult.qualityScore,
+            spam_probability: qualityResult.spamProbability,
+            is_spam: qualityResult.isSpam
+          })
+        } catch (qualityError) {
+          console.warn('Failed to store quality score:', qualityError)
+          // Don't fail the event update if quality score storage fails
+        }
+      }
 
       toast.success("Event updated successfully!")
 
@@ -143,6 +224,22 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] bg-black text-white border border-white/20 max-h-[90vh] overflow-y-auto">
+        <style jsx>{`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(8px) scale(0.95);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+          
+          .tag-container {
+            transition: all 0.3s ease-in-out;
+          }
+        `}</style>
         <DialogHeader>
           <DialogTitle className="text-white">Edit Event</DialogTitle>
           <DialogDescription className="text-gray-300">
@@ -207,10 +304,25 @@ export function EditEventModal({ isOpen, onClose, event, onSuccess }: EditEventM
           </div>
 
           <div>
-            <label className="text-sm font-medium text-white mb-2 block">Event Tags</label>
+            <label className="text-sm font-medium text-white mb-2 block">
+              Event Tags
+              {isTagging && (
+                <span className="ml-2 text-xs text-[#B1810B] animate-pulse">
+                  ...
+                </span>
+              )}
+              {taggingError && (
+                <span className="ml-2 text-xs text-yellow-400">
+                  ⚠️ {taggingError}
+                </span>
+              )}
+            </label>
+            
             <TagSelector
               selectedTags={tags}
               onTagsChange={setTags}
+              suggestedTags={suggestedTags}
+              tagConfidences={tagConfidences}
             />
           </div>
 

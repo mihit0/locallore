@@ -6,9 +6,14 @@ import { EventCard } from '@/components/EventCard';
 
 interface MasonryLayoutProps {
   events: Event[];
+  mlScores?: Record<string, {
+    recommendationScore?: number;
+    qualityScore?: number;
+    spamProbability?: number;
+  }>;
 }
 
-export function MasonryLayout({ events }: MasonryLayoutProps) {
+export function MasonryLayout({ events, mlScores = {} }: MasonryLayoutProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [columns, setColumns] = useState<Event[][]>([[], [], []]);
   const [isMobile, setIsMobile] = useState(false);
@@ -42,9 +47,18 @@ export function MasonryLayout({ events }: MasonryLayoutProps) {
     <div ref={containerRef} className="flex gap-3 md:gap-4 items-start justify-center">
       {columns.map((columnEvents, columnIndex) => (
         <div key={columnIndex} className="flex-1 space-y-2 md:space-y-4 max-w-[calc(50%-0.375rem)] md:max-w-none">
-          {columnEvents.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
+          {columnEvents.map((event) => {
+            const eventScores = mlScores[event.id] || {};
+            return (
+              <EventCard 
+                key={event.id} 
+                event={event} 
+                recommendationScore={eventScores.recommendationScore}
+                qualityScore={eventScores.qualityScore}
+                spamProbability={eventScores.spamProbability}
+              />
+            );
+          })}
         </div>
       ))}
     </div>

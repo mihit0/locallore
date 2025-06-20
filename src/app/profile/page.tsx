@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useInView } from 'react-intersection-observer'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
@@ -37,6 +38,9 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMoreEvents, setLoadingMoreEvents] = useState(false)
+  const [eventsPage, setEventsPage] = useState(1)
+  const [hasMoreEvents, setHasMoreEvents] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [isEditingProfile, setIsEditingProfile] = useState(false)
@@ -46,6 +50,13 @@ export default function ProfilePage() {
     graduation_year: ''
   })
   const [userPreferences, setUserPreferences] = useState<string[]>([]);
+
+  // Intersection observer for infinite scroll
+  const { ref: eventsRef, inView: eventsInView } = useInView({
+    threshold: 0,
+  });
+
+  const EVENTS_PER_PAGE = 10;
 
   // Add graduation year options
   const currentYear = new Date().getFullYear()
@@ -118,26 +129,8 @@ export default function ProfilePage() {
           console.error('No profile data found for user:', userId)
         }
 
-        // Load user's events
-        const { data: eventsData, error: eventsError } = await supabase
-          .from('events')
-          .select('*')
-          .eq('user_id', userId)
-          .order('start_time', { ascending: true })
-
-        if (eventsError) {
-          console.error('Error loading events:', {
-            message: eventsError.message,
-            details: eventsError.details,
-            hint: eventsError.hint,
-            code: eventsError.code
-          })
-          return
-        }
-
-        if (eventsData) {
-          setEvents(eventsData)
-        }
+        // Load user's events with pagination
+        await loadUserEvents(userId, 1, true);
       } catch (error) {
         console.error('Error:', error)
       } finally {
@@ -147,6 +140,58 @@ export default function ProfilePage() {
 
     loadProfile()
   }, [user, router, authLoading])
+
+  // Load more events when scrolling
+  useEffect(() => {
+    if (eventsInView && !loading && !loadingMoreEvents && hasMoreEvents && user?.id) {
+      const nextPage = eventsPage + 1;
+      setEventsPage(nextPage);
+      loadUserEvents(user.id, nextPage, false);
+    }
+  }, [eventsInView, loading, loadingMoreEvents, hasMoreEvents, eventsPage, user?.id])
+
+  // Function to load user events (needs to be accessible outside loadProfile)
+  const loadUserEvents = async (userId: string, pageNum: number, reset: boolean = false) => {
+    if (reset) {
+      setLoadingMoreEvents(false);
+    } else {
+      setLoadingMoreEvents(true);
+    }
+
+    try {
+      const offset = (pageNum - 1) * EVENTS_PER_PAGE;
+      const { data: eventsData, error: eventsError } = await supabase
+        .from('events')
+        .select('*')
+        .eq('user_id', userId)
+        .order('start_time', { ascending: false })
+        .range(offset, offset + EVENTS_PER_PAGE - 1);
+
+      if (eventsError) {
+        console.error('Error loading events:', {
+          message: eventsError.message,
+          details: eventsError.details,
+          hint: eventsError.hint,
+          code: eventsError.code
+        });
+        return;
+      }
+
+      if (eventsData) {
+        setHasMoreEvents(eventsData.length === EVENTS_PER_PAGE);
+        
+        if (reset) {
+          setEvents(eventsData);
+        } else {
+          setEvents(prev => [...prev, ...eventsData]);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user events:', error);
+    } finally {
+      setLoadingMoreEvents(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -163,15 +208,11 @@ export default function ProfilePage() {
   }
 
   const handleEditSuccess = async () => {
-    // Reload events after edit
-    const { data: eventsData } = await supabase
-      .from('events')
-      .select('*')
-      .eq('user_id', user?.id)
-      .order('start_time', { ascending: true })
-
-    if (eventsData) {
-      setEvents(eventsData)
+    // Reload events after edit - reset pagination
+    if (user?.id) {
+      setEventsPage(1);
+      setHasMoreEvents(true);
+      await loadUserEvents(user.id, 1, true);
     }
     setShowEditModal(false)
     setSelectedEvent(null)
@@ -502,6 +543,25 @@ export default function ProfilePage() {
                 />
               ))}
             </div>
+            
+            {/* Infinite scroll trigger for more events */}
+            {hasMoreEvents && (
+              <div ref={eventsRef} className="py-4">
+                {loadingMoreEvents && (
+                  <div className="flex justify-center">
+                    <div className="animate-pulse text-gray-400">
+                      Loading more events...
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {!hasMoreEvents && events.length > EVENTS_PER_PAGE && (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500">No more events to load</p>
+              </div>
+            )}
           </div>
         )}
 

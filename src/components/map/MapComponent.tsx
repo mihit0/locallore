@@ -12,6 +12,7 @@ import { EditEventModal } from './EditEventModal'
 import { formatEasternDateTime } from '@/lib/date'
 import { EventDetailsSheet } from './EventDetailsSheet'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { mapCache } from '@/lib/mapCache'
 
 // Initialize Mapbox
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!
@@ -64,7 +65,7 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation, h
   const searchParams = useSearchParams()
   const eventId = searchParams.get('event')
 
-  // Load active events from database
+  // Load active events from database (always fetch fresh)
   useEffect(() => {
     async function loadEvents() {
       const { data, error } = await supabase
@@ -85,7 +86,11 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation, h
       }
 
       console.log('Events loaded:', data?.length || 0, 'events')
-      setEvents(data || [])
+      const events = data || [];
+      setEvents(events);
+      
+      // Cache events with a short duration (2 minutes) for performance
+      mapCache.setCachedEvents(events);
 
       // If there's an event ID in the URL, select and show that event
       if (eventId && data) {
@@ -127,7 +132,9 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation, h
           table: 'events' 
         }, 
         () => {
-          loadEvents() // Reload events when changes occur
+          // Clear cache and reload events when changes occur
+          mapCache.clearCache();
+          loadEvents();
         }
       )
       .subscribe()
@@ -137,15 +144,19 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation, h
     }
   }, [eventId])
 
-  // Display events on map
+  // Display events on map (recreate markers when events change)
   useEffect(() => {
     if (!map.current || events.length === 0) return
 
-    // Remove existing markers
+    // Always clear existing markers when events change
+    mapCache.clearCachedMarkers();
     const markers = document.getElementsByClassName('mapboxgl-marker')
     while (markers[0]) {
       markers[0].remove()
     }
+
+    console.log('Creating markers for', events.length, 'events');
+    const newMarkers: mapboxgl.Marker[] = [];
 
     // Add markers for each event
     events.forEach(event => {
@@ -196,7 +207,13 @@ export default function MapComponent({ isCreatingEvent, onCancelEventCreation, h
       
       // Store event ID on marker element for reference
       markerEl.setAttribute('data-event-id', event.id)
+      
+      // Add to markers array for caching
+      newMarkers.push(marker);
     })
+
+    // Cache the new markers
+    mapCache.setCachedMarkers(newMarkers);
 
     // Add event listener for view details button clicks
     const handleViewEventDetails = async (event: CustomEvent<string>) => {

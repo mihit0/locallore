@@ -18,6 +18,10 @@ export type Event = {
     display_name: string;
     graduation_year?: number;
   };
+  // Quality scores from ML API
+  quality_score?: number;
+  spam_probability?: number;
+  is_spam?: boolean;
 };
 
 export type UserPreferences = {

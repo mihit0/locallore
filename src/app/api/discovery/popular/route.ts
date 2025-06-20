@@ -23,7 +23,6 @@ export async function GET(request: Request) {
       `)
       .gt('end_time', new Date().toISOString())
       .order('view_count', { ascending: false })
-      .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) {

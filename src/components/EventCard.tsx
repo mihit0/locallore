@@ -27,6 +27,34 @@ const getTagBadgeClasses = (tag: string): string => {
   return `text-xs border-0`;
 };
 
+// Helper function to render tags with confidence scores
+const renderTagWithConfidence = (tag: string, confidence?: number) => {
+  const baseColor = getTagColor(tag);
+  const hasConfidence = confidence !== undefined && confidence > 0;
+  
+  return (
+    <Badge
+      key={tag}
+      variant="outline"
+      className="text-xs border-0 h-5 px-2 relative"
+      style={{
+        backgroundColor: hasConfidence 
+          ? `${baseColor}${Math.round(confidence * 255).toString(16).padStart(2, '0').slice(0, 2)}` 
+          : `${baseColor}15`,
+        color: baseColor,
+        borderColor: `${baseColor}20`
+      }}
+    >
+      {tag}
+      {hasConfidence && confidence > 0.7 && (
+        <span className="ml-1 text-xs opacity-75">
+          {Math.round(confidence * 100)}%
+        </span>
+      )}
+    </Badge>
+  );
+};
+
 interface EventCardProps {
   event: Event;
   showMapButton?: boolean;
@@ -34,6 +62,9 @@ interface EventCardProps {
   externalBookmarkState?: boolean;
   externalAttendState?: boolean;
   onStateChange?: (eventId: string, isBookmarked: boolean, isAttending: boolean) => void;
+  spamProbability?: number;
+  qualityScore?: number;
+  recommendationScore?: number;
 }
 
 export function EventCard({ 
@@ -42,7 +73,10 @@ export function EventCard({
   onBookmarkUpdate,
   externalBookmarkState,
   externalAttendState,
-  onStateChange 
+  onStateChange,
+  spamProbability = 0,
+  qualityScore = 1,
+  recommendationScore
 }: EventCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -407,6 +441,31 @@ export function EventCard({
         )}
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-lg font-semibold line-clamp-2 text-white flex-1">{event.title}</h3>
+          <div className="flex items-center gap-1 ml-2">
+            {/* Recommendation Score */}
+            {recommendationScore && recommendationScore > 0.6 && (
+              <div 
+                className={`px-1 py-0.5 rounded text-xs ${
+                  recommendationScore > 0.8 
+                    ? 'bg-[#B1810B]/20 text-[#B1810B]' 
+                    : recommendationScore > 0.7 
+                    ? 'bg-blue-500/20 text-blue-400' 
+                    : 'bg-gray-500/20 text-gray-400'
+                }`}
+                title={`Recommended for you (${Math.round(recommendationScore * 100)}% match)`}
+              >
+                {recommendationScore > 0.8 ? '⭐' : '👍'}
+              </div>
+            )}
+            
+            {/* Quality Indicator - Minimalistic dot */}
+            {qualityScore > 0.8 && !(event.is_spam || spamProbability > 0.6) && (
+              <div 
+                className="w-2 h-2 bg-green-400 rounded-full"
+                title={`High quality content (${Math.round(qualityScore * 100)}% quality)`}
+              />
+            )}
+          </div>
         </div>
 
         <div className="text-xs text-gray-400 mb-3 space-y-1">
@@ -425,20 +484,7 @@ export function EventCard({
         {/* Tags section */}
         {event.tags && event.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">
-            {event.tags.slice(0, 4).map((tag) => (
-              <Badge
-                key={tag}
-                variant="outline"
-                className="text-xs border-0 h-5 px-2"
-                style={{
-                  backgroundColor: `${getTagColor(tag)}15`,
-                  color: getTagColor(tag),
-                  borderColor: `${getTagColor(tag)}20`
-                }}
-              >
-                {tag}
-              </Badge>
-            ))}
+            {event.tags.slice(0, 4).map((tag) => renderTagWithConfidence(tag))}
             {event.tags.length > 4 && (
               <Badge
                 variant="outline"

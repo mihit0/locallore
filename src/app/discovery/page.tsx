@@ -41,6 +41,16 @@ export default function DiscoveryPage() {
       const response = await fetch(endpoint);
       const data = await response.json();
       
+      // Handle API errors gracefully
+      if (!data.events || !Array.isArray(data.events)) {
+        console.warn(`API returned invalid data for ${tab}:`, data);
+        if (pageNum === 1) {
+          setEvents([]);
+        }
+        setHasMore(false);
+        return;
+      }
+      
       if (pageNum === 1) {
         setEvents(data.events);
       } else {
@@ -50,6 +60,10 @@ export default function DiscoveryPage() {
       setHasMore(data.events.length === 20);
     } catch (error) {
       console.error("Error fetching events:", error);
+      if (pageNum === 1) {
+        setEvents([]);
+      }
+      setHasMore(false);
     } finally {
       setLoading(false);
     }

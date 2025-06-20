@@ -8,22 +8,38 @@ import { X, Plus, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { TAG_CATEGORIES, TAG_COLORS } from '@/types/event';
+import { useAuth } from '@/lib/auth';
 
-interface UserPreferencesProps {
-  userId: string;
-  initialPreferences?: string[];
-  onPreferencesUpdate?: (preferences: string[]) => void;
-}
-
-export function UserPreferences({ userId, initialPreferences = [], onPreferencesUpdate }: UserPreferencesProps) {
-  const [preferences, setPreferences] = useState<string[]>(initialPreferences);
+export function UserPreferences() {
+  const { user } = useAuth();
+  const [preferences, setPreferences] = useState<string[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadAvailableTags();
-  }, []);
+    if (user) {
+      loadUserPreferences();
+      loadAvailableTags();
+    }
+  }, [user]);
+
+  const loadUserPreferences = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('preferences')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+      setPreferences(data?.preferences || []);
+    } catch (error) {
+      console.error('Error loading user preferences:', error);
+    }
+  };
 
   const loadAvailableTags = async () => {
     try {
@@ -36,7 +52,14 @@ export function UserPreferences({ userId, initialPreferences = [], onPreferences
       if (error) throw error;
       
       const tags = data?.map(item => item.tag) || [];
-      setAvailableTags(tags);
+      // Filter out any spam-related or inappropriate tags
+      const filteredTags = tags.filter(tag => 
+        !tag.toLowerCase().includes('spam') && 
+        !tag.toLowerCase().includes('detect') &&
+        !tag.toLowerCase().includes('ai') &&
+        !tag.toLowerCase().includes('quality')
+      );
+      setAvailableTags(filteredTags);
     } catch (error) {
       console.error('Error loading tags:', error);
       // Fallback to hardcoded tags if database fails
@@ -46,17 +69,21 @@ export function UserPreferences({ userId, initialPreferences = [], onPreferences
   };
 
   const updatePreferences = async (newPreferences: string[]) => {
+    if (!user) return;
+
     setLoading(true);
     try {
-      const { error } = await supabase.rpc('update_user_preferences', {
-        user_uuid: userId,
-        new_preferences: newPreferences
-      });
+      const { error } = await supabase
+        .from('users')
+        .update({ 
+          preferences: newPreferences,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
 
       if (error) throw error;
 
       setPreferences(newPreferences);
-      onPreferencesUpdate?.(newPreferences);
       toast.success('Preferences updated successfully');
       setIsEditing(false);
     } catch (error) {
@@ -80,9 +107,9 @@ export function UserPreferences({ userId, initialPreferences = [], onPreferences
   };
 
   const getTagColor = (tag: string): string => {
-    for (const [category, tags] of Object.entries(TAG_CATEGORIES)) {
+    for (const [cat, tags] of Object.entries(TAG_CATEGORIES)) {
       if ((tags as readonly string[]).includes(tag)) {
-        return TAG_COLORS[category as keyof typeof TAG_COLORS];
+        return TAG_COLORS[cat as keyof typeof TAG_COLORS];
       }
     }
     return TAG_COLORS.General;
@@ -91,6 +118,8 @@ export function UserPreferences({ userId, initialPreferences = [], onPreferences
   const getAvailableTagsToAdd = () => {
     return availableTags.filter(tag => !preferences.includes(tag));
   };
+
+  if (!user) return null;
 
   if (!isEditing) {
     return (
@@ -223,7 +252,7 @@ export function UserPreferences({ userId, initialPreferences = [], onPreferences
           </Button>
           <Button
             onClick={() => {
-              setPreferences(initialPreferences);
+              loadUserPreferences(); // Reset to original preferences
               setIsEditing(false);
             }}
             variant="ghost"
