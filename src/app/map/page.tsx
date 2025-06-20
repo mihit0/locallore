@@ -63,7 +63,7 @@ function MapPageContent() {
           size="sm"
           className={`text-xs sm:text-sm flex-shrink-0 ${isCreatingEvent ? "text-gray-300 hover:bg-gray-800 hover:text-white" : "text-[#B1810B] hover:bg-[#B1810B]/20 hover:text-[#D4940D]"}`}
         >
-          {isCreatingEvent ? "Cancel" : user ? "Create Event" : "Sign in"}
+          {isCreatingEvent ? "Cancel" : user ? "Create Event" : "Sign in to Create Event"}
         </Button>
       </div>
       

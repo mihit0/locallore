@@ -87,9 +87,9 @@ export default function DiscoveryPage() {
   return (
     <div className="min-h-screen bg-black">
       <div className="container mx-auto px-3 md:px-4 py-4 md:py-6 max-w-full overflow-x-hidden">
-        <div className="text-center mb-4 md:mb-6 space-y-2">
-          <h1 className="text-3xl md:text-4xl font-bold text-white">Discover Events</h1>
-          <p className="text-xs md:text-sm text-gray-400">
+        <div className="text-center mb-4 md:mb-6 space-y-1 sm:space-y-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Discover Events</h1>
+          <p className="text-xs sm:text-sm md:text-base text-gray-400">
             Find what's happening on campus right now
           </p>
         </div>

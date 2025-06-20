@@ -88,15 +88,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <Card className="w-full max-w-md bg-black border border-white/20">
-        <CardHeader>
-          <CardTitle className="text-white text-center">Login to LocalLore</CardTitle>
-          <CardDescription className="text-gray-300 text-center">
+    <div className="min-h-screen flex items-center justify-center bg-black px-4 py-8">
+      <Card className="w-full max-w-sm sm:max-w-md bg-black border border-white/20">
+        <CardHeader className="space-y-2 pb-4">
+          <CardTitle className="text-white text-center text-xl sm:text-2xl">Login to LocalLore</CardTitle>
+          <CardDescription className="text-gray-300 text-center text-sm">
             Access your Purdue events dashboard
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Input
@@ -107,7 +107,7 @@ export default function LoginPage() {
                 required
                 pattern="[^@]+@purdue\.edu"
                 title="Please use your Purdue email address"
-                className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400"
+                className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400 text-sm sm:text-base h-10 sm:h-12"
               />
             </div>
             
@@ -118,17 +118,17 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400"
+                className="bg-gray-900 border-white/20 text-white placeholder:text-gray-400 text-sm sm:text-base h-10 sm:h-12"
               />
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm">{error}</p>
+              <p className="text-red-400 text-xs sm:text-sm">{error}</p>
             )}
 
             <Button 
               type="submit" 
-              className="w-full bg-[#B1810B] text-white hover:bg-[#8B6B09] disabled:bg-gray-700 disabled:text-gray-400" 
+              className="w-full bg-[#B1810B] text-white hover:bg-[#8B6B09] disabled:bg-gray-700 disabled:text-gray-400 h-10 sm:h-12 text-sm sm:text-base" 
               disabled={loading}
             >
               {loading ? 'Logging in...' : 'Login'}

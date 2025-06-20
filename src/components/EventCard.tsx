@@ -428,10 +428,10 @@ export function EventCard({
     <>
       <div 
         ref={cardRef}
-        className="w-full p-3 md:p-4 rounded hover:bg-gray-900/30 transition-all duration-300 hover:scale-[1.02] transform"
+        className="w-full p-3 sm:p-4 rounded hover:bg-gray-900/30 transition-all duration-300 hover:scale-[1.01] sm:hover:scale-[1.02] transform"
       >
         {event.image_url && (
-          <div className="relative w-full h-32 md:h-40 mb-3 rounded overflow-hidden">
+          <div className="relative w-full h-28 sm:h-32 md:h-40 mb-3 rounded overflow-hidden">
             <img 
               src={event.image_url} 
               alt={event.title}
@@ -440,8 +440,8 @@ export function EventCard({
           </div>
         )}
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold line-clamp-2 text-white flex-1">{event.title}</h3>
-          <div className="flex items-center gap-1 ml-2">
+          <h3 className="text-base sm:text-lg font-semibold line-clamp-2 text-white flex-1 pr-2">{event.title}</h3>
+          <div className="flex items-center gap-1 flex-shrink-0">
             {/* Recommendation Score */}
             {recommendationScore && recommendationScore > 0.6 && (
               <div 

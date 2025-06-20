@@ -30,14 +30,23 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="bg-black">
-      <body className={`${inter.className} bg-black`}>
+      <body className={`${inter.className} bg-black antialiased overflow-x-hidden`}>
         <AuthProvider>
-          <main className="pb-20">
+          <main className="pb-16 sm:pb-20 min-h-screen">
             {children}
           </main>
           <Navigation />
         </AuthProvider>
-        <Toaster />
+        <Toaster 
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: '#1f1f1f',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: '#ffffff',
+            },
+          }}
+        />
       </body>
     </html>
   );
