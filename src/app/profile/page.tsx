@@ -406,19 +406,33 @@ export default function ProfilePage() {
                         </Select>
                       </div>
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="flex-col gap-2 sm:flex-row sm:gap-0">
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <Button 
+                          variant="ghost"
+                          onClick={() => setIsEditingProfile(false)}
+                          className="text-gray-300 hover:bg-gray-900 flex-1 sm:flex-initial"
+                        >
+                          <span className="text-sm">Cancel</span>
+                        </Button>
+                        <Button 
+                          onClick={handleEditProfile}
+                          className="bg-[#B1810B] text-white hover:bg-[#8B6B09] transition-colors duration-200 flex-1 sm:flex-initial"
+                        >
+                          <span className="text-sm">Save Changes</span>
+                        </Button>
+                      </div>
                       <Button 
-                        variant="ghost"
-                        onClick={() => setIsEditingProfile(false)}
-                        className="text-gray-300 hover:bg-gray-900"
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-red-400 hover:bg-red-900/20 w-full sm:w-auto mt-2 sm:mt-0"
+                        onClick={() => {
+                          setIsEditingProfile(false)
+                          setIsConfirmingDelete(true)
+                        }}
                       >
-                        <span className="text-sm">Cancel</span>
-                      </Button>
-                      <Button 
-                        onClick={handleEditProfile}
-                        className="bg-[#B1810B] text-white hover:bg-[#8B6B09] transition-colors duration-200"
-                      >
-                        <span className="text-sm">Save Changes</span>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        <span className="text-sm">Delete Account</span>
                       </Button>
                     </DialogFooter>
                   </DialogContent>

@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
 import dynamic from 'next/dynamic'
+import { Home } from 'lucide-react'
 
 // Dynamically import MapComponent with SSR disabled to prevent window access issues
 const MapComponent = dynamic(
@@ -47,7 +48,9 @@ function MapPageContent() {
     <div className="h-screen flex flex-col fixed inset-0 overflow-hidden" data-map-page>
       <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center flex-shrink-0 z-10">
         <Link href="/">
-          <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">← Back to Home</Button>
+          <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-800 p-2">
+            <Home className="w-4 h-4" />
+          </Button>
         </Link>
         <h1 className="text-sm sm:text-lg md:text-xl font-semibold text-white">Purdue Events Map</h1>
         <Button 
@@ -76,7 +79,9 @@ export default function MapPage() {
       <div className="h-screen flex flex-col fixed inset-0 overflow-hidden" data-map-page>
         <div className="bg-black border-b border-white/20 p-4 flex justify-between items-center flex-shrink-0 z-10">
           <Link href="/">
-            <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-800">← Back to Home</Button>
+            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-gray-800 p-2">
+              <Home className="w-4 h-4" />
+            </Button>
           </Link>
           <h1 className="text-sm sm:text-lg md:text-xl font-semibold text-white">Purdue Events Map</h1>
           <Button variant="ghost" className="text-gray-300 hover:bg-gray-800 hover:text-white">

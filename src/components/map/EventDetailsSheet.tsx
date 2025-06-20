@@ -365,43 +365,7 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit, externalBook
               </Button>
             </div>
           </div>
-          
-          {/* Tags - Show all tags in details view */}
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-white">Tags</h3>
-            <div className="flex flex-wrap gap-2">
-              {event.tags && event.tags.length > 0 ? (
-                event.tags.map((tag, index) => (
-                  <Badge 
-                    key={index} 
-                    variant="outline" 
-                    className="text-xs border-0 px-3 py-1 backdrop-blur-sm"
-                    style={{
-                      backgroundColor: `${getTagColor(tag)}20`,
-                      color: getTagColor(tag),
-                      borderColor: `${getTagColor(tag)}30`
-                    }}
-                  >
-                    {tag}
-                  </Badge>
-                ))
-              ) : event.category ? (
-                <Badge 
-                  variant="outline" 
-                  className="text-xs border-0 px-3 py-1 backdrop-blur-sm"
-                  style={{
-                    backgroundColor: `${getTagColor(event.category)}20`,
-                    color: getTagColor(event.category),
-                    borderColor: `${getTagColor(event.category)}30`
-                  }}
-                >
-                  {event.category}
-                </Badge>
-              ) : (
-                <p className="text-sm text-gray-400">No tags</p>
-              )}
-            </div>
-          </div>
+
 
           {/* Interaction Buttons */}
           <div className="flex items-center gap-3">
@@ -453,6 +417,44 @@ export function EventDetailsSheet({ event, isOpen, onClose, onEdit, externalBook
           <div>
             <h3 className="text-sm font-medium mb-2 text-white">Description</h3>
             <p className="text-sm text-gray-300 whitespace-pre-wrap">{event.description}</p>
+          </div>
+
+          <div className="w-full h-px bg-white/20"></div>
+
+          <div>
+            <h3 className="text-sm font-medium mb-2 text-white">Tags</h3>
+            <div className="flex flex-wrap gap-2">
+              {event.tags && event.tags.length > 0 ? (
+                event.tags.map((tag, index) => (
+                  <Badge 
+                    key={index} 
+                    variant="outline" 
+                    className="text-xs border-0 px-3 py-1 backdrop-blur-sm"
+                    style={{
+                      backgroundColor: `${getTagColor(tag)}20`,
+                      color: getTagColor(tag),
+                      borderColor: `${getTagColor(tag)}30`
+                    }}
+                  >
+                    {tag}
+                  </Badge>
+                ))
+              ) : event.category ? (
+                <Badge 
+                  variant="outline" 
+                  className="text-xs border-0 px-3 py-1 backdrop-blur-sm"
+                  style={{
+                    backgroundColor: `${getTagColor(event.category)}20`,
+                    color: getTagColor(event.category),
+                    borderColor: `${getTagColor(event.category)}30`
+                  }}
+                >
+                  {event.category}
+                </Badge>
+              ) : (
+                <p className="text-sm text-gray-300">No tags</p>
+              )}
+            </div>
           </div>
 
           <div className="w-full h-px bg-white/20"></div>
