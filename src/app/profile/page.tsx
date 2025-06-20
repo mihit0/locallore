@@ -515,11 +515,7 @@ export default function ProfilePage() {
 
         {/* User Preferences Section */}
         <div className="space-y-6">
-          <UserPreferences
-            userId={user?.id || ''}
-            initialPreferences={userPreferences}
-            onPreferencesUpdate={setUserPreferences}
-          />
+          <UserPreferences />
         </div>
 
         {/* Bookmarked Events Section */}
